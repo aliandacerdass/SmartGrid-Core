@@ -57,7 +57,7 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
   - Üst cetvel (X-Axis) Y = 10'dan Y = 3'e taşındı, yazıları çentiklerin altına (Y=13) hizalandı.
   - Sağ cetvel (Y-Axis) X = 790'dan X = 797'ye taşındı, yazıları sol tarafa (X=789) hizalandı.
   - Bu sayede jeneratör ve aboneler en üst ve en sağ sınırlara sürüklendiğinde, etiket ve kutular cetvellerle üst üste binmeyecek şekilde şebeke alanı ferahlatıldı.
-  - **Düzeltme:** SVG container'ının 2:1 aspect-ratio formatına sadık kalması için CSS'te `.network-viewport` alanına `aspect-ratio: 2 / 1` tanımlandı ve SVG elementine `preserveAspectRatio="xMidYMin meet"` eklenerek cetvelin siyah panelin en tepesinde konumlanması garanti altına alındı.
+  - **Düzeltme:** SVG ve container yüksekliği optimize edildi. CSS'teki `.network-viewport` alanının `aspect-ratio` değeri `8 / 5` olarak güncellendi ve SVG `viewBox` yüksekliği `500` piksele yükseltildi. Böylece cetvel panelin en tepesinde kalırken şebeke çizim alanı eski büyük boyutuna kavuşturuldu ve düğüm konum sınırları (Y için 40-460 arası) genişletildi.
 
 ### [2026-06-08] - Çoklu Jeneratör ve Uzamsal Simülasyon Güncellemesi
 - **Geliştirme:** Şebekede tek enerji kaynağı yerine birden fazla jeneratör (💨 Rüzgar, ☀️ Güneş, 🔋 Batarya vb.) desteği eklendi.
