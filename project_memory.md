@@ -55,6 +55,7 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 - **Geliştirme:** `main.py` terminal arayüzüne yükleme animasyonları (spinning loader), uyarı titreşim efektleri (pulse warning) ve dinamik olarak güncellenen ASCII topoloji grafiği (düğümler ve iletim yolları) eklendi.
 - **Geliştirme:** `dashboard.html` etkileşimli web görselleştirme arayüzü sıfırdan inşa edildi. Glassmorphic koyu tema, SVG tabanlı canlı akış animasyonlu şebeke grafiği, dinamik güç kontrol kaydırıcısı ve gerçek zamanlı abone yönetim modülü sunuldu.
 - **Geliştirme (Yeni):** `dashboard.html` dosyasına doğrudan toplam enerji girdisini elle yazarak değiştirebileceğiniz bir sayısal girdi alanı (Numeric Input) eklendi ve slider ile senkronize edildi. Ayrıca abone eklerken emoji simgesi seçmeyi sağlayan "İkon/Simge Seçici" özelliği getirildi.
+- **Hata Giderimi:** Şebeke topoloji grafiğindeki düğümlerin farklı ekran çözünürlüklerinde yana kayarak kesilmesi problemi giderildi. SVG elementine responsive `viewBox="0 0 800 400"` ve `preserveAspectRatio` tanımlandı; düğüm koordinatları bu sanal düzleme göre mükemmel şekilde ortalandı.
 - **Değişiklik:** `project_memory.md` güncellendi ve yeni aşama tamamlandı olarak işaretlendi.
 
 ### [2026-06-08] - Projenin Tamamlanması
