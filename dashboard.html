@@ -119,15 +119,47 @@
         .control-label {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             color: var(--text-secondary);
             font-size: 0.95rem;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.8rem;
             font-weight: 600;
         }
 
-        .control-value {
+        .control-value-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        /* Direct Power Input Field */
+        .power-num-input {
+            width: 70px;
+            background: transparent;
+            border: none;
             color: var(--accent-cyan);
             font-weight: 800;
+            font-size: 1.1rem;
+            text-align: right;
+            outline: none;
+            font-family: inherit;
+        }
+
+        /* Remove spin arrows from input number */
+        .power-num-input::-webkit-outer-spin-button,
+        .power-num-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .control-value {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         input[type="range"] {
@@ -279,12 +311,13 @@
 
         /* Node Cards */
         .node-list-container {
-            max-height: 480px;
+            max-height: 400px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
             padding-right: 5px;
+            margin-bottom: 1.5rem;
         }
 
         .node-list-container::-webkit-scrollbar {
@@ -329,6 +362,10 @@
         .badge-2 { background: rgba(245, 158, 11, 0.15); color: var(--status-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
         .badge-3 { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
 
+        .sub-icon {
+            font-size: 1.4rem;
+        }
+
         .sub-name {
             font-weight: 600;
             font-size: 1rem;
@@ -362,10 +399,11 @@
         /* Management Panel Inputs */
         .add-abone-form {
             display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
-            gap: 10px;
+            grid-template-columns: 1.3fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+            gap: 8px;
             align-items: flex-end;
-            margin-top: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--card-border);
         }
 
         @media (max-width: 768px) {
@@ -390,7 +428,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 8px 10px;
             color: #fff;
             outline: none;
             font-size: 0.9rem;
@@ -491,9 +529,14 @@
                 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>Anlık Güç Üretimi (Güneş & Rüzgar)</span>
-                        <span class="control-value"><span id="power-val">100.0</span> MW</span>
+                        <span>Anlık Üretilen Güç Miktarı</span>
+                        <div class="control-value-container">
+                            <!-- Direct numeric input of total power flow -->
+                            <input type="number" id="power-input-num" min="0" max="1000" step="1" value="100" class="power-num-input" title="Doğrudan sayı girmek için buraya tıklayın">
+                            <span class="control-value">MW</span>
+                        </div>
                     </div>
+                    <!-- Slider synced with numeric input -->
                     <input type="range" id="power-slider" min="0" max="200" step="5" value="100">
                 </div>
 
@@ -536,6 +579,23 @@
                         <input type="text" id="new-name" placeholder="Örn: C Konutları">
                     </div>
                     <div class="form-input-group">
+                        <label for="new-icon">İkon / Simge</label>
+                        <select id="new-icon" style="font-size: 1.1rem; padding: 6px 4px;">
+                            <option value="🏥">🏥 Hastane</option>
+                            <option value="🏠">🏠 Konut / Ev</option>
+                            <option value="🏭">🏭 Sanayi / Fabrika</option>
+                            <option value="🏫">🏫 Okul / Eğitim</option>
+                            <option value="🏢">🏢 İş Merkezi</option>
+                            <option value="💻">💻 Teknopark</option>
+                            <option value="🚨">🚨 Acil Durum</option>
+                            <option value="⚡">⚡ Enerji Ünitesi</option>
+                            <option value="🚜">🚜 Tarım / Çiftlik</option>
+                            <option value="🏪">🏪 Market / AVM</option>
+                            <option value="🏨">🏨 Otel</option>
+                            <option value="⛲">⛲ Rekreasyon</option>
+                        </select>
+                    </div>
+                    <div class="form-input-group">
                         <label for="new-priority">Öncelik</label>
                         <select id="new-priority">
                             <option value="1">1: Kritik</option>
@@ -545,11 +605,11 @@
                     </div>
                     <div class="form-input-group">
                         <label for="new-demand">Talep (MW)</label>
-                        <input type="number" id="new-demand" min="1" max="100" value="20">
+                        <input type="number" id="new-demand" min="1" max="100" value="20" style="padding: 8px 6px;">
                     </div>
                     <div class="form-input-group">
                         <label for="new-distance">Mesafe (km)</label>
-                        <input type="number" id="new-distance" min="1" max="30" value="5">
+                        <input type="number" id="new-distance" min="1" max="30" value="5" style="padding: 8px 6px;">
                     </div>
                     <button class="btn-add" onclick="addNewSubscriber()">Ekle</button>
                 </div>
@@ -587,30 +647,42 @@
 <script>
     // In-memory Database simulating Python dict structure
     let database = {
-        "Merkez Hastanesi": { priority: 1, demand: 30, distance: 2, status: "Enerji Yok", supplied: 0, loss: 0, x: 500, y: 70 },
-        "Acil Durum İstasyonu": { priority: 1, demand: 10, distance: 1.5, status: "Enerji Yok", supplied: 0, loss: 0, x: 650, y: 120 },
-        "A Mahallesi Konutları": { priority: 2, demand: 25, distance: 5, status: "Enerji Yok", supplied: 0, loss: 0, x: 620, y: 280 },
-        "B Mahallesi Konutları": { priority: 2, demand: 20, distance: 8, status: "Enerji Yok", supplied: 0, loss: 0, x: 480, y: 320 },
-        "Organize Sanayi Bölgesi": { priority: 3, demand: 50, distance: 12, status: "Enerji Yok", supplied: 0, loss: 0, x: 260, y: 260 },
-        "Teknoloji Geliştirme Parkı": { priority: 3, demand: 15, distance: 6, status: "Enerji Yok", supplied: 0, loss: 0, x: 280, y: 110 }
+        "Merkez Hastanesi": { priority: 1, demand: 30, distance: 2, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏥", x: 500, y: 70 },
+        "Acil Durum İstasyonu": { priority: 1, demand: 10, distance: 1.5, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🚨", x: 650, y: 120 },
+        "A Mahallesi Konutları": { priority: 2, demand: 25, distance: 5, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏠", x: 620, y: 280 },
+        "B Mahallesi Konutları": { priority: 2, demand: 20, distance: 8, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏠", x: 480, y: 320 },
+        "Organize Sanayi Bölgesi": { priority: 3, demand: 50, distance: 12, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏭", x: 260, y: 260 },
+        "Teknoloji Geliştirme Parkı": { priority: 3, demand: 15, distance: 6, status: "Enerji Yok", supplied: 0, loss: 0, icon: "💻", x: 280, y: 110 }
     };
 
     const sourceNode = { name: "Yenilenebilir Kaynak", x: 450, y: 190 };
 
     const powerSlider = document.getElementById("power-slider");
-    const powerVal = document.getElementById("power-val");
+    const powerInput = document.getElementById("power-input-num");
     const nodeList = document.getElementById("node-list");
     const svgEl = document.getElementById("topology-svg");
 
-    // Initialize UI
+    // Initialize UI Event Listeners - Both Synced together!
+    // Changing the slider updates the number box
     powerSlider.addEventListener("input", (e) => {
-        powerVal.innerText = parseFloat(e.target.value).toFixed(1);
-        distributeEnergy(parseFloat(e.target.value));
+        const val = parseFloat(e.target.value);
+        powerInput.value = val;
+        distributeEnergy(val);
+    });
+
+    // Changing the number box updates the slider
+    powerInput.addEventListener("input", (e) => {
+        let val = parseFloat(e.target.value);
+        if (isNaN(val) || val < 0) {
+            val = 0;
+        }
+        powerSlider.value = val;
+        distributeEnergy(val);
     });
 
     function setScenario(val) {
         powerSlider.value = val;
-        powerVal.innerText = val.toFixed(1);
+        powerInput.value = val;
         distributeEnergy(val);
     }
 
@@ -701,9 +773,12 @@
             nodeList.innerHTML += `
                 <div class="sub-node-row">
                     <div class="sub-info-left">
-                        <span class="priority-badge badge-${info.priority}">P-${info.priority}</span>
+                        <span class="sub-icon">${info.icon || "🏠"}</span>
                         <div>
-                            <div class="sub-name">${name}</div>
+                            <div class="sub-name" style="display: flex; align-items: center; gap: 8px;">
+                                ${name}
+                                <span class="priority-badge badge-${info.priority}">P-${info.priority}</span>
+                            </div>
                             <div class="sub-meta">Talep: ${info.demand} MW | Mesafe: ${info.distance} km</div>
                         </div>
                     </div>
@@ -712,7 +787,7 @@
                             <div class="sub-status-text ${statusClass}">${info.status}</div>
                             <div class="sub-power-supplied">Kayıp: ${info.loss.toFixed(2)} MW</div>
                         </div>
-                        <button class="btn-delete" onclick="deleteSubscriber('${name}')">🗑️</button>
+                        <button class="btn-delete" onclick="deleteSubscriber('${name}')" title="Aboneyi Sil">🗑️</button>
                     </div>
                 </div>
             `;
@@ -722,11 +797,13 @@
     // Add new subscriber
     function addNewSubscriber() {
         const nameInput = document.getElementById("new-name");
+        const iconSelect = document.getElementById("new-icon");
         const prioritySelect = document.getElementById("new-priority");
         const demandInput = document.getElementById("new-demand");
         const distanceInput = document.getElementById("new-distance");
 
         const name = nameInput.value.trim();
+        const icon = iconSelect.value;
         const priority = parseInt(prioritySelect.value);
         const demand = parseFloat(demandInput.value);
         const distance = parseFloat(distanceInput.value);
@@ -752,6 +829,7 @@
             status: "Enerji Yok",
             supplied: 0,
             loss: 0,
+            icon: icon,
             x: x,
             y: y
         };
@@ -850,10 +928,7 @@
             const node = database[name];
             let color = "#ef4444";
             let glow = "var(--glow-red)";
-            let icon = "🏭";
-
-            if (node.priority === 1) icon = "🏥";
-            else if (node.priority === 2) icon = "🏠";
+            let icon = node.icon || "🏠";
 
             if (node.status.includes("Besleniyor (%100)")) {
                 color = "#10b981";
