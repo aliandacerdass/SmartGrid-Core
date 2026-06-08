@@ -52,6 +52,12 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 
 ## 🪵 Değişiklik Günlüğü (Change Log)
 
+### [2026-06-08] - Cetvel Konumlandırma İyileştirmesi
+- **Görsel İyileştirme:** Koordinat cetvellerinin (ruler) şebeke çizim alanını kısıtlamaması için konumları kenarlara çekildi.
+  - Üst cetvel (X-Axis) Y = 10'dan Y = 3'e taşındı, yazıları çentiklerin altına (Y=13) hizalandı.
+  - Sağ cetvel (Y-Axis) X = 790'dan X = 797'ye taşındı, yazıları sol tarafa (X=789) hizalandı.
+  - Bu sayede jeneratör ve aboneler en üst ve en sağ sınırlara sürüklendiğinde, etiket ve kutular cetvellerle üst üste binmeyecek şekilde şebeke alanı ferahlatıldı.
+
 ### [2026-06-08] - Çoklu Jeneratör ve Uzamsal Simülasyon Güncellemesi
 - **Geliştirme:** Şebekede tek enerji kaynağı yerine birden fazla jeneratör (💨 Rüzgar, ☀️ Güneş, 🔋 Batarya vb.) desteği eklendi.
 - **Algoritmik Geliştirme:** Çok Kaynaklı Dengeleme Algoritması entegre edildi. Her abone en yüksek öncelikten başlayarak kendisine **en yakın (Euclidean distance)** ve boş kapasitesi olan jeneratör(ler)den beslenir.
