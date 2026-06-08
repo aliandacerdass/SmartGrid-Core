@@ -43,12 +43,18 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 | **Aşama 3** | CLI Simülasyon Arayüzü Geliştirilmesi (`main.py`) | 🟢 Tamamlandı |
 | **Aşama 4** | Birim Testleri & Doğrulama (`test_smart_grid.py`) | 🟢 Tamamlandı |
 | **Aşama 5** | Sunum Taslağı ve Akademik Savunma Rehberi (`presentation_guide.md`) | 🟢 Tamamlandı |
+| **Aşama 6** | Canlı İnteraktif Web Görselleştirme Arayüzü (`dashboard.html`) | 🟢 Tamamlandı |
 
 *Durum Göstergeleri: 🔴 Planlandı | 🟡 Devam Ediyor | 🟢 Tamamlandı*
 
 ---
 
 ## 🪵 Değişiklik Günlüğü (Change Log)
+
+### [2026-06-08] - Görselleştirme ve Animasyon Güncellemesi
+- **Geliştirme:** `main.py` terminal arayüzüne yükleme animasyonları (spinning loader), uyarı titreşim efektleri (pulse warning) ve dinamik olarak güncellenen ASCII topoloji grafiği (düğümler ve iletim yolları) eklendi.
+- **Geliştirme:** `dashboard.html` etkileşimli web görselleştirme arayüzü sıfırdan inşa edildi. Glassmorphic koyu tema, SVG tabanlı canlı akış animasyonlu şebeke grafiği, dinamik güç kontrol kaydırıcısı ve gerçek zamanlı abone yönetim modülü sunuldu.
+- **Değişiklik:** `project_memory.md` güncellendi ve yeni aşama tamamlandı olarak işaretlendi.
 
 ### [2026-06-08] - Projenin Tamamlanması
 * **Değişiklik:** Çekirdek algoritma kütüphanesi `smart_grid.py` geliştirildi. Priority Queue (min-heap) ve iletim hatlarındaki kayıpları (transmission loss) minimize eden Greedy yaklaşım entegre edildi.

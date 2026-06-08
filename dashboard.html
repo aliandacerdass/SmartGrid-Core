@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGrid-Core: Enerji Dağıtım Simülasyonu</title>
+    <!-- Google Fonts: Outfit for modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-glow: radial-gradient(circle at 50% 50%, #1a153a 0%, #0d0b1a 100%);
+            --card-bg: rgba(22, 20, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #9fa0b5;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --status-green: #10b981;
+            --status-yellow: #f59e0b;
+            --status-red: #ef4444;
+            --glow-green: 0 0 20px rgba(16, 185, 129, 0.4);
+            --glow-yellow: 0 0 20px rgba(245, 158, 11, 0.4);
+            --glow-red: 0 0 20px rgba(239, 68, 68, 0.4);
+            --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-glow);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 2rem;
+        }
+
+        .logo-section h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-section p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        /* Layout */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphic Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 1.8rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-cyan);
+        }
+
+        /* Sliders and Controls */
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 0.6rem;
+            font-weight: 600;
+        }
+
+        .control-value {
+            color: var(--accent-cyan);
+            font-weight: 800;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Quick Scenarios Buttons */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.8rem 1.2rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        button.btn-scenario-1 {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        button.btn-scenario-1:hover {
+            background: var(--status-green);
+            color: #000;
+            border-color: var(--status-green);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        button.btn-scenario-2 {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        button.btn-scenario-2:hover {
+            background: var(--status-red);
+            color: #fff;
+            border-color: var(--status-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Summary Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        /* Visualization Network Graph */
+        .visualization-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .network-viewport {
+            width: 100%;
+            height: 380px;
+            background: rgba(10, 8, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        svg.network-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* SVG Glow filters */
+        .pulse-source {
+            animation: pulse-source-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-source-glow {
+            0% { r: 16; opacity: 0.7; }
+            100% { r: 24; opacity: 0.3; }
+        }
+
+        /* Running power flow animation */
+        .flow-line {
+            stroke-dasharray: 6, 6;
+            animation: flow 30s linear infinite;
+        }
+
+        .flow-line.off {
+            stroke-dasharray: 0;
+            animation: none;
+            stroke-opacity: 0.2;
+        }
+
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        /* Node Cards */
+        .node-list-container {
+            max-height: 480px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+
+        .node-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .node-list-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .sub-node-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 0.9rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .sub-node-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .sub-info-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .priority-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .badge-1 { background: rgba(239, 68, 68, 0.15); color: var(--status-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-2 { background: rgba(245, 158, 11, 0.15); color: var(--status-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-3 { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .sub-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .sub-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .sub-status-box {
+            text-align: right;
+        }
+
+        .sub-status-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .text-green { color: var(--status-green); }
+        .text-yellow { color: var(--status-yellow); }
+        .text-red { color: var(--status-red); }
+
+        .sub-power-supplied {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Management Panel Inputs */
+        .add-abone-form {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .add-abone-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-input-group label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        button.btn-add {
+            background: var(--accent-cyan);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 15px;
+            cursor: pointer;
+        }
+
+        button.btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--status-red);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 2px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        button.btn-delete:hover {
+            opacity: 1;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        /* Academic Explainer Card */
+        .academic-info {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .academic-info-title {
+            color: var(--accent-purple);
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .academic-info-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .academic-badge {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="logo-section">
+            <h1>⚡ SmartGrid-Core Dashboard</h1>
+            <p>Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritması & Topoloji Simülatörü</p>
+        </div>
+        <div>
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                Ders: <strong style="color: #fff;">Algoritmalar Projesi</strong>
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="grid-layout">
+        
+        <!-- Controls Column -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- Energy Controller -->
+            <div class="card">
+                <div class="card-title">🔋 Yenilenebilir Enerji Girdisi</div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Anlık Güç Üretimi (Güneş & Rüzgar)</span>
+                        <span class="control-value"><span id="power-val">100.0</span> MW</span>
+                    </div>
+                    <input type="range" id="power-slider" min="0" max="200" step="5" value="100">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-scenario-1" onclick="setScenario(100)">🌞 Senaryo 1: 100 MW</button>
+                    <button class="btn-scenario-2" onclick="setScenario(30)">☁️ Senaryo 2: 30 MW</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Toplam Tüketilen Güç</div>
+                        <div class="stat-val text-green" id="stat-supplied">0.0 MW</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Toplam Şebeke Kaybı</div>
+                        <div class="stat-val text-red" id="stat-loss">0.0 MW</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid" style="margin-top: 10px;">
+                    <div class="stat-box" style="grid-column: span 2;">
+                        <div class="stat-label">Ortalama Şebeke Verimliliği</div>
+                        <div class="stat-val text-green" id="stat-efficiency" style="color: var(--accent-cyan);">100%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscriber Manager -->
+            <div class="card">
+                <div class="card-title">👥 Abone Yönetim Birimi (Hash-Map O(1))</div>
+                
+                <div class="node-list-container" id="node-list">
+                    <!-- Dynamic subscriber rows will go here -->
+                </div>
+
+                <!-- Add Abone Form -->
+                <div class="add-abone-form">
+                    <div class="form-input-group">
+                        <label for="new-name">Abone Adı</label>
+                        <input type="text" id="new-name" placeholder="Örn: C Konutları">
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-priority">Öncelik</label>
+                        <select id="new-priority">
+                            <option value="1">1: Kritik</option>
+                            <option value="2" selected>2: Normal</option>
+                            <option value="3">3: Düşük</option>
+                        </select>
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-demand">Talep (MW)</label>
+                        <input type="number" id="new-demand" min="1" max="100" value="20">
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-distance">Mesafe (km)</label>
+                        <input type="number" id="new-distance" min="1" max="30" value="5">
+                    </div>
+                    <button class="btn-add" onclick="addNewSubscriber()">Ekle</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Visualization Column -->
+        <div class="visualization-panel">
+            
+            <!-- Network Topology Graphic -->
+            <div class="card" style="padding: 1.2rem;">
+                <div class="card-title" style="margin-bottom: 0.8rem; margin-left: 0.6rem;">🌐 Şebeke Topolojisi ve Canlı Güç Akışı</div>
+                
+                <div class="network-viewport">
+                    <svg class="network-svg" id="topology-svg">
+                        <!-- SVG content dynamically generated by JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Academic Insight -->
+            <div class="academic-info">
+                <div class="academic-info-title">🎓 Akademik Optimizasyon Raporu</div>
+                <div class="academic-info-desc">
+                    Sistem veri tabanına erişmek için <span class="academic-badge">O(1)</span> Hash-Map indekslemesi kullanmaktadır. Dağıtım planlaması yapılırken aboneler öncelik ve mesafe ( Greedy ) kriterlerine göre <span class="academic-badge">O(N log N)</span> maliyetli bir <strong>Heap / Priority Queue</strong> ile sıralanır. Eşit öncelikli gruplarda mesafe bazlı Greedy seçimi yapılması, iletim hatlarındaki güç kayıplarını minimuma indirir.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // In-memory Database simulating Python dict structure
+    let database = {
+        "Merkez Hastanesi": { priority: 1, demand: 30, distance: 2, status: "Enerji Yok", supplied: 0, loss: 0, x: 500, y: 70 },
+        "Acil Durum İstasyonu": { priority: 1, demand: 10, distance: 1.5, status: "Enerji Yok", supplied: 0, loss: 0, x: 650, y: 120 },
+        "A Mahallesi Konutları": { priority: 2, demand: 25, distance: 5, status: "Enerji Yok", supplied: 0, loss: 0, x: 620, y: 280 },
+        "B Mahallesi Konutları": { priority: 2, demand: 20, distance: 8, status: "Enerji Yok", supplied: 0, loss: 0, x: 480, y: 320 },
+        "Organize Sanayi Bölgesi": { priority: 3, demand: 50, distance: 12, status: "Enerji Yok", supplied: 0, loss: 0, x: 260, y: 260 },
+        "Teknoloji Geliştirme Parkı": { priority: 3, demand: 15, distance: 6, status: "Enerji Yok", supplied: 0, loss: 0, x: 280, y: 110 }
+    };
+
+    const sourceNode = { name: "Yenilenebilir Kaynak", x: 450, y: 190 };
+
+    const powerSlider = document.getElementById("power-slider");
+    const powerVal = document.getElementById("power-val");
+    const nodeList = document.getElementById("node-list");
+    const svgEl = document.getElementById("topology-svg");
+
+    // Initialize UI
+    powerSlider.addEventListener("input", (e) => {
+        powerVal.innerText = parseFloat(e.target.value).toFixed(1);
+        distributeEnergy(parseFloat(e.target.value));
+    });
+
+    function setScenario(val) {
+        powerSlider.value = val;
+        powerVal.innerText = val.toFixed(1);
+        distributeEnergy(val);
+    }
+
+    // Transmission Loss formula matching Python code
+    function calculateLoss(demand, distance) {
+        const lossCoefficient = 0.01; // 1% per km
+        return demand * (distance * lossCoefficient);
+    }
+
+    // Distribution algorithm (Priority Queue logic simulated via JS array sorting)
+    function distributeEnergy(totalPower) {
+        // Reset states
+        for (let key in database) {
+            database[key].status = "Enerji Kesildi";
+            database[key].supplied = 0;
+            database[key].loss = 0;
+        }
+
+        // Build Priority Queue list and sort:
+        // Priority (1 > 2 > 3) then Distance (shorter distance first for greedy loss reduction)
+        let pq = [];
+        for (let name in database) {
+            pq.push({ name: name, ...database[name] });
+        }
+        pq.sort((a, b) => {
+            if (a.priority !== b.priority) {
+                return a.priority - b.priority;
+            }
+            return a.distance - b.distance;
+        });
+
+        let remaining = totalPower;
+        let totalSupplied = 0;
+        let totalLoss = 0;
+
+        for (let item of pq) {
+            if (remaining <= 0) {
+                database[item.name].status = "Enerji Kesildi";
+                continue;
+            }
+
+            const loss = calculateLoss(item.demand, item.distance);
+            const totalNeeded = item.demand + loss;
+
+            if (remaining >= totalNeeded) {
+                remaining -= totalNeeded;
+                database[item.name].status = "Besleniyor (%100)";
+                database[item.name].supplied = item.demand;
+                database[item.name].loss = loss;
+                totalSupplied += item.demand;
+                totalLoss += loss;
+            } else if (remaining > 0) {
+                // Partial allocation
+                const supplied = remaining / (1 + (item.distance * 0.01));
+                const actualLoss = remaining - supplied;
+
+                database[item.name].status = `Kısıtlı Besleniyor (${supplied.toFixed(1)} MW)`;
+                database[item.name].supplied = supplied;
+                database[item.name].loss = actualLoss;
+                totalSupplied += supplied;
+                totalLoss += actualLoss;
+                remaining = 0;
+            }
+        }
+
+        // Update statistics
+        document.getElementById("stat-supplied").innerText = `${totalSupplied.toFixed(1)} MW`;
+        document.getElementById("stat-loss").innerText = `${totalLoss.toFixed(1)} MW`;
+        
+        const totalNeededEff = totalSupplied + totalLoss;
+        const efficiency = totalNeededEff > 0 ? (totalSupplied / totalNeededEff) * 100 : 100;
+        document.getElementById("stat-efficiency").innerText = `${efficiency.toFixed(1)}%`;
+
+        updateSubscriberUI();
+        drawTopologyGraph();
+    }
+
+    // Update the list showing subscribers
+    function updateSubscriberUI() {
+        nodeList.innerHTML = "";
+        for (let name in database) {
+            const info = database[name];
+            
+            let statusClass = "text-red";
+            if (info.status.includes("Besleniyor (%100)")) statusClass = "text-green";
+            else if (info.status.includes("Kısıtlı")) statusClass = "text-yellow";
+
+            nodeList.innerHTML += `
+                <div class="sub-node-row">
+                    <div class="sub-info-left">
+                        <span class="priority-badge badge-${info.priority}">P-${info.priority}</span>
+                        <div>
+                            <div class="sub-name">${name}</div>
+                            <div class="sub-meta">Talep: ${info.demand} MW | Mesafe: ${info.distance} km</div>
+                        </div>
+                    </div>
+                    <div class="sub-status-box" style="display: flex; align-items: center; gap: 12px;">
+                        <div>
+                            <div class="sub-status-text ${statusClass}">${info.status}</div>
+                            <div class="sub-power-supplied">Kayıp: ${info.loss.toFixed(2)} MW</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteSubscriber('${name}')">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Add new subscriber
+    function addNewSubscriber() {
+        const nameInput = document.getElementById("new-name");
+        const prioritySelect = document.getElementById("new-priority");
+        const demandInput = document.getElementById("new-demand");
+        const distanceInput = document.getElementById("new-distance");
+
+        const name = nameInput.value.trim();
+        const priority = parseInt(prioritySelect.value);
+        const demand = parseFloat(demandInput.value);
+        const distance = parseFloat(distanceInput.value);
+
+        if (!name) {
+            alert("Lütfen geçerli bir abone adı girin!");
+            return;
+        }
+
+        if (database[name]) {
+            alert("Bu isimde bir abone zaten mevcut!");
+            return;
+        }
+
+        // Random coordinates for visual placement on SVG canvas
+        const x = 150 + Math.random() * 550;
+        const y = 50 + Math.random() * 280;
+
+        database[name] = {
+            priority: priority,
+            demand: demand,
+            distance: distance,
+            status: "Enerji Yok",
+            supplied: 0,
+            loss: 0,
+            x: x,
+            y: y
+        };
+
+        // Reset input fields
+        nameInput.value = "";
+        distributeEnergy(parseFloat(powerSlider.value));
+    }
+
+    // Delete subscriber
+    function deleteSubscriber(name) {
+        if (confirm(`"${name}" abonesini silmek istediğinize emin misiniz?`)) {
+            delete database[name];
+            distributeEnergy(parseFloat(powerSlider.value));
+        }
+    }
+
+    // Draw the network graph using animated SVG paths
+    function drawTopologyGraph() {
+        svgEl.innerHTML = "";
+
+        // Definitions for marker markers
+        svgEl.innerHTML += `
+            <defs>
+                <marker id="arrow-green" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                </marker>
+                <marker id="arrow-yellow" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+                </marker>
+                <marker id="arrow-red" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                </marker>
+            </defs>
+        `;
+
+        // 1. Draw connections
+        for (let name in database) {
+            const node = database[name];
+            let color = "rgba(239, 68, 68, 0.4)";
+            let marker = "url(#arrow-red)";
+            let flowClass = "flow-line off";
+
+            if (node.status.includes("Besleniyor (%100)")) {
+                color = "#10b981";
+                marker = "url(#arrow-green)";
+                flowClass = "flow-line";
+            } else if (node.status.includes("Kısıtlı")) {
+                color = "#f59e0b";
+                marker = "url(#arrow-yellow)";
+                flowClass = "flow-line";
+            }
+
+            // Path line
+            svgEl.innerHTML += `
+                <line x1="${sourceNode.x}" y1="${sourceNode.y}" x2="${node.x}" y2="${node.y}" 
+                      stroke="${color}" stroke-width="2.5" marker-end="${marker}" class="${flowClass}" />
+            `;
+            
+            // Distance text along the link
+            const midX = (sourceNode.x + node.x) / 2;
+            const midY = (sourceNode.y + node.y) / 2 - 10;
+            svgEl.innerHTML += `
+                <text x="${midX}" y="${midY}" fill="#9fa0b5" font-size="11" font-weight="600" text-anchor="middle">
+                    ${node.distance} km
+                </text>
+            `;
+        }
+
+        // 2. Draw source node (Power plant generator)
+        svgEl.innerHTML += `
+            <g transform="translate(${sourceNode.x}, ${sourceNode.y})">
+                <circle cx="0" cy="0" r="20" fill="url(#sourceGrad)" filter="url(#glow-c)" />
+                <circle cx="0" cy="0" r="14" fill="#06b6d4" class="pulse-source" />
+                <circle cx="0" cy="0" r="10" fill="#fff" />
+                <text x="0" y="-28" fill="#fff" font-size="12" font-weight="800" text-anchor="middle">⚡ ÜRETİCİ</text>
+            </g>
+        `;
+
+        // Radial gradient for source node
+        svgEl.innerHTML += `
+            <defs>
+                <radialGradient id="sourceGrad">
+                    <stop offset="0%" stop-color="#22d3ee" />
+                    <stop offset="100%" stop-color="#0891b2" />
+                </radialGradient>
+                <filter id="glow-c" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="8" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+        `;
+
+        // 3. Draw subscriber nodes
+        for (let name in database) {
+            const node = database[name];
+            let color = "#ef4444";
+            let glow = "var(--glow-red)";
+            let icon = "🏭";
+
+            if (node.priority === 1) icon = "🏥";
+            else if (node.priority === 2) icon = "🏠";
+
+            if (node.status.includes("Besleniyor (%100)")) {
+                color = "#10b981";
+                glow = "var(--glow-green)";
+            } else if (node.status.includes("Kısıtlı")) {
+                color = "#f59e0b";
+                glow = "var(--glow-yellow)";
+            }
+
+            svgEl.innerHTML += `
+                <g transform="translate(${node.x}, ${node.y})">
+                    <circle cx="0" cy="0" r="16" fill="${color}" style="box-shadow: ${glow}" />
+                    <text x="0" y="4" font-size="14" text-anchor="middle">${icon}</text>
+                    
+                    <!-- Box label for subscriber details -->
+                    <rect x="-70" y="-36" width="140" height="18" rx="4" fill="rgba(0,0,0,0.85)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                    <text x="0" y="-23" fill="#fff" font-size="9.5" font-weight="600" text-anchor="middle">
+                        ${name.substring(0, 18)}${name.length > 18 ? '...' : ''}
+                    </text>
+                    
+                    <!-- Priority marker -->
+                    <circle cx="-14" cy="18" r="6" fill="#1e1b4b" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+                    <text x="-14" y="21" fill="#a5b4fc" font-size="8" font-weight="bold" text-anchor="middle">P${node.priority}</text>
+
+                    <!-- Demand value indicator -->
+                    <text x="14" y="21" fill="#fff" font-size="8.5" font-weight="bold" text-anchor="middle">
+                        ${node.demand}M
+                    </text>
+                </g>
+            `;
+        }
+    }
+
+    // Run first calculation
+    distributeEnergy(100);
+</script>
+
+</body>
+</html>
