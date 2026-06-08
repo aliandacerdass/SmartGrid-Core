@@ -1317,6 +1317,36 @@
                 </g>
             `;
         }
+
+        // 4. Draw X and Y Coordinate Rulers (SCADA/CAD style) along the borders
+        // Top Ruler (X-Axis) at Y = 10
+        svgEl.innerHTML += `
+            <line x1="50" y1="10" x2="750" y2="10" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" />
+        `;
+        for (let x = 100; x <= 700; x += 50) {
+            const isMajor = x % 100 === 0;
+            svgEl.innerHTML += `
+                <line x1="${x}" y1="10" x2="${x}" y2="${isMajor ? 16 : 13}" stroke="rgba(255, 255, 255, ${isMajor ? 0.25 : 0.12})" stroke-width="1" />
+                ${isMajor ? `
+                <text x="${x}" y="7" fill="rgba(255, 255, 255, 0.35)" font-size="8" font-weight="700" text-anchor="middle">
+                    ${x}
+                </text>
+                ` : ''}
+            `;
+        }
+
+        // Right Ruler (Y-Axis) at X = 790
+        svgEl.innerHTML += `
+            <line x1="790" y1="40" x2="790" y2="360" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" />
+        `;
+        for (let y = 50; y <= 350; y += 50) {
+            svgEl.innerHTML += `
+                <line x1="790" y1="${y}" x2="784" y2="${y}" stroke="rgba(255, 255, 255, 0.25)" stroke-width="1" />
+                <text x="778" y="${y + 3}" fill="rgba(255, 255, 255, 0.35)" font-size="8" font-weight="700" text-anchor="end">
+                    ${y}
+                </text>
+            `;
+        }
     }
 
     // Run first rendering & calculation
