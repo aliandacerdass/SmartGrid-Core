@@ -44,12 +44,19 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 | **Aşama 4** | Birim Testleri & Doğrulama (`test_smart_grid.py`) | 🟢 Tamamlandı |
 | **Aşama 5** | Sunum Taslağı ve Akademik Savunma Rehberi (`presentation_guide.md`) | 🟢 Tamamlandı |
 | **Aşama 6** | Canlı İnteraktif Web Görselleştirme Arayüzü (`dashboard.html`) | 🟢 Tamamlandı |
+| **Aşama 7** | Çoklu Jeneratör & Konumsal Kayıp Simülasyon Arayüzü (`dashboard.html`) | 🟢 Tamamlandı |
 
 *Durum Göstergeleri: 🔴 Planlandı | 🟡 Devam Ediyor | 🟢 Tamamlandı*
 
 ---
 
 ## 🪵 Değişiklik Günlüğü (Change Log)
+
+### [2026-06-08] - Çoklu Jeneratör ve Uzamsal Simülasyon Güncellemesi
+- **Geliştirme:** Şebekede tek enerji kaynağı yerine birden fazla jeneratör (💨 Rüzgar, ☀️ Güneş, 🔋 Batarya vb.) desteği eklendi.
+- **Algoritmik Geliştirme:** Çok Kaynaklı Dengeleme Algoritması entegre edildi. Her abone en yüksek öncelikten başlayarak kendisine **en yakın (Euclidean distance)** ve boş kapasitesi olan jeneratör(ler)den beslenir.
+- **Geliştirme (UI):** Jeneratörlerin kapasitelerini, X ve Y koordinatlarını anlık değiştirebileceğiniz sürgüler (sliders) eklendi. Jeneratörlerin konumları değiştikçe iletim hatları otomatik olarak hareket eder ve iletim hatlarındaki fiziksel mesafe kayıpları anlık yeniden hesaplanır.
+- **Değişiklik:** `project_memory.md` güncellendi ve yeni aşama tamamlandı olarak işaretlendi.
 
 ### [2026-06-08] - Görselleştirme ve Animasyon Güncellemesi
 - **Geliştirme:** `main.py` terminal arayüzüne yükleme animasyonları (spinning loader), uyarı titreşim efektleri (pulse warning) ve dinamik olarak güncellenen ASCII topoloji grafiği (düğümler ve iletim yolları) eklendi.

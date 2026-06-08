@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartGrid-Core: Endüstriyel SCADA Enerji Dağıtım Paneli</title>
+    <title>SmartGrid-Core: Multi-Source SCADA Dağıtım Paneli</title>
     <!-- Google Fonts: Inter for professional engineering typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -40,7 +40,7 @@
         }
 
         .container {
-            max-width: 1440px;
+            max-width: 1550px;
             margin: 0 auto;
         }
 
@@ -117,11 +117,11 @@
         /* Layout Grid */
         .grid-layout {
             display: grid;
-            grid-template-columns: 1fr 1.3fr;
+            grid-template-columns: 1.15fr 1fr;
             gap: 1.5rem;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .grid-layout {
                 grid-template-columns: 1fr;
             }
@@ -132,135 +132,278 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
         }
 
         .panel-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.6rem;
-        }
-
-        /* Sliders and Telemetry Input Controls */
-        .control-group {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .control-label {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 0.8rem;
-            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
         }
 
-        .control-value-container {
+        .panel-title span.title-icon {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            padding: 2px 8px;
-            border-radius: 6px;
         }
 
-        .power-num-input {
-            width: 65px;
-            background: transparent;
-            border: none;
-            color: var(--accent-blue);
+        /* Lists Styles */
+        .node-list-container {
+            max-height: 260px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .node-list-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .node-list-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        /* Row templates */
+        .sub-node-row, .gen-node-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            transition: background 0.15s ease;
+        }
+
+        .sub-node-row:hover, .gen-node-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sub-info-left, .gen-info-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 60%;
+        }
+
+        .priority-badge {
+            font-size: 0.65rem;
             font-weight: 700;
-            font-size: 1rem;
-            text-align: right;
-            outline: none;
-            font-family: inherit;
+            padding: 1px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
 
-        .control-value {
+        .badge-1 { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-2 { background: rgba(245, 158, 11, 0.1); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-3 { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+        .sub-icon, .gen-icon {
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.04);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sub-name, .gen-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .sub-meta, .gen-meta {
+            font-size: 0.72rem;
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            margin-top: 1px;
+        }
+
+        .sub-status-box, .gen-status-box {
+            text-align: right;
+        }
+
+        .sub-status-text {
+            font-size: 0.78rem;
             font-weight: 600;
         }
 
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #1f2937;
+        .text-green { color: var(--accent-green); }
+        .text-yellow { color: var(--accent-yellow); }
+        .text-red { color: var(--accent-red); }
+
+        .sub-power-supplied, .gen-power-usage {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        /* Slider Controls inside lists for instant changes */
+        .gen-list-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 35%;
+        }
+
+        .inline-slider-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .inline-slider-group input[type="range"] {
+            height: 4px;
+        }
+
+        .inline-slider-group span.val {
+            width: 45px;
+            text-align: right;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Editor Forms */
+        .add-node-form {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+            gap: 6px;
+            align-items: flex-end;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .add-gen-form {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+            gap: 6px;
+            align-items: flex-end;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .add-node-form, .add-gen-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .form-input-group label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], input[type="number"], select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 8px;
+            color: #fff;
             outline: none;
+            font-size: 0.8rem;
         }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        button.btn-add {
             background: var(--accent-blue);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
             cursor: pointer;
-            border: 2px solid #fff;
-            transition: background 0.1s ease;
+            font-size: 0.8rem;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
+        button.btn-add:hover {
             background: var(--accent-blue-hover);
         }
 
-        /* Flat Scenario Buttons */
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        button {
-            padding: 0.6rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: all 0.15s ease;
-        }
-
-        button:hover {
-            background: var(--border-color);
-        }
-
-        button.btn-scenario-1:hover {
-            border-color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--accent-green);
-        }
-
-        button.btn-scenario-2:hover {
-            border-color: var(--accent-red);
-            background: rgba(239, 68, 68, 0.1);
+        button.btn-delete {
+            background: transparent;
+            border: none;
             color: var(--accent-red);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 2px;
+            opacity: 0.5;
+            transition: opacity 0.15s;
         }
 
-        /* Telemetry Stats Grid */
+        button.btn-delete:hover {
+            opacity: 1;
+        }
+
+        /* Visual Topology Frame */
+        .network-viewport {
+            width: 100%;
+            height: 440px;
+            background: #06090f;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        svg.network-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Dotted Grid blueprint texture */
+        .grid-pattern {
+            fill: url(#grid);
+        }
+
+        /* Connection line animations */
+        .flow-line {
+            stroke-dasharray: 4, 4;
+            animation: flow-run 40s linear infinite;
+        }
+
+        .flow-line.off {
+            stroke-dasharray: 0;
+            animation: none;
+            stroke-opacity: 0.15;
+        }
+
+        @keyframes flow-run {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        /* Technical Info Panel */
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 0.75rem;
-            margin-top: 1rem;
         }
 
         .stat-box {
@@ -284,233 +427,26 @@
             font-weight: 700;
         }
 
-        /* Visual Topology Frame */
-        .network-viewport {
-            width: 100%;
-            height: 380px;
-            background: #06090f;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        svg.network-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Dotted Engineering Blueprint Grid */
-        .grid-pattern {
-            fill: url(#grid);
-        }
-
-        /* Connection line animations */
-        .flow-line {
-            stroke-dasharray: 4, 4;
-            animation: flow-run 40s linear infinite;
-        }
-
-        .flow-line.off {
-            stroke-dasharray: 0;
-            animation: none;
-            stroke-opacity: 0.15;
-        }
-
-        @keyframes flow-run {
-            to {
-                stroke-dashoffset: -1000;
-            }
-        }
-
-        /* Node List */
-        .node-list-container {
-            max-height: 380px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-right: 5px;
-            margin-bottom: 1.2rem;
-        }
-
-        .node-list-container::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .node-list-container::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        .sub-node-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            padding: 0.7rem 1rem;
-            transition: background 0.15s ease;
-        }
-
-        .sub-node-row:hover {
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .sub-info-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .priority-badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .badge-1 { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); }
-        .badge-2 { background: rgba(245, 158, 11, 0.1); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-3 { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
-
-        .sub-icon {
-            font-size: 1.2rem;
-            background: rgba(255, 255, 255, 0.05);
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .sub-name {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .sub-meta {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 1px;
-        }
-
-        .sub-status-box {
-            text-align: right;
-        }
-
-        .sub-status-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .text-green { color: var(--accent-green); }
-        .text-yellow { color: var(--accent-yellow); }
-        .text-red { color: var(--accent-red); }
-
-        .sub-power-supplied {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        /* SCADA Editor Form */
-        .add-abone-form {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
-            gap: 8px;
-            align-items: flex-end;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 768px) {
-            .add-abone-form {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-input-group label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        input[type="text"], input[type="number"], select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 6px 8px;
-            color: #fff;
-            outline: none;
-            font-size: 0.85rem;
-        }
-
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            border-color: var(--accent-blue);
-        }
-
-        button.btn-add {
-            background: var(--accent-blue);
-            color: #fff;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-
-        button.btn-add:hover {
-            background: var(--accent-blue-hover);
-        }
-
-        button.btn-delete {
-            background: transparent;
-            border: none;
-            color: var(--accent-red);
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 2px;
-            opacity: 0.5;
-            transition: opacity 0.15s;
-        }
-
-        button.btn-delete:hover {
-            opacity: 1;
-        }
-
-        /* Technical Report Box */
         .academic-info {
-            background: rgba(2, 132, 199, 0.05);
-            border: 1px solid rgba(2, 132, 199, 0.2);
+            background: rgba(2, 132, 199, 0.04);
+            border: 1px solid rgba(2, 132, 199, 0.15);
             border-radius: 12px;
-            padding: 1.2rem;
+            padding: 1rem 1.2rem;
             margin-top: 1rem;
         }
 
         .academic-info-title {
             color: var(--accent-blue);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .academic-info-desc {
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             line-height: 1.5;
         }
 
@@ -520,7 +456,7 @@
             padding: 1px 5px;
             border-radius: 3px;
             font-family: monospace;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: bold;
         }
     </style>
@@ -531,8 +467,8 @@
     <!-- Header -->
     <header>
         <div class="logo-section">
-            <h1>🔌 SMARTGRID-CORE <span class="scada-badge">SCADA SYSTEM</span></h1>
-            <p>Dinamik Dengeleme & Enerji Dağıtım İzleme ve Kontrol Ünitesi</p>
+            <h1>🔌 SMARTGRID-CORE <span class="scada-badge">MULTI-SOURCE SCADA</span></h1>
+            <p>Çok Kaynaklı Dengeleme & Enerji Dağıtım Kontrol Paneli</p>
         </div>
         <div class="system-status">
             <span style="color: var(--text-secondary);">Şebeke Durumu:</span>
@@ -549,55 +485,62 @@
         <!-- Controls Column -->
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
             
-            <!-- Energy Controller -->
+            <!-- Generators Panel -->
             <div class="panel">
-                <div class="panel-title">⚙️ Yenilenebilir Kaynak Kontrolü</div>
-                
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Üretilen Toplam Güç (Güneş & Rüzgar)</span>
-                        <div class="control-value-container">
-                            <input type="number" id="power-input-num" min="0" max="1000" step="1" value="100" class="power-num-input" title="Sayısal girişi değiştirmek için tıklayın">
-                            <span class="control-value">MW</span>
-                        </div>
-                    </div>
-                    <input type="range" id="power-slider" min="0" max="200" step="5" value="100">
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn-scenario-1" onclick="setScenario(100)">🌞 Gün Senaryosu: 100 MW</button>
-                    <button class="btn-scenario-2" onclick="setScenario(30)">☁️ Gece/Kriz Senaryosu: 30 MW</button>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Toplam Dağıtılan Güç</div>
-                        <div class="stat-val text-green" id="stat-supplied">0.0 MW</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Toplam İletim Kaybı</div>
-                        <div class="stat-val text-red" id="stat-loss">0.0 MW</div>
-                    </div>
+                <div class="panel-title">
+                    <span class="title-icon">⚙️ Jeneratör İstasyonları ve Konumları</span>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">Toplam Üretim: <strong id="total-gen-mw" style="color: var(--accent-blue);">130</strong> MW</span>
                 </div>
                 
-                <div class="stats-grid" style="margin-top: 8px;">
-                    <div class="stat-box" style="grid-column: span 2;">
-                        <div class="stat-label">Ortalama Şebeke Verimliliği</div>
-                        <div class="stat-val" id="stat-efficiency" style="color: var(--accent-blue);">100%</div>
+                <div class="node-list-container" id="generator-list">
+                    <!-- Dynamic generator rows with sliders for power, x, and y will go here -->
+                </div>
+
+                <!-- Add Generator Form -->
+                <div class="add-gen-form">
+                    <div class="form-input-group">
+                        <label for="new-gen-name">Jeneratör Adı</label>
+                        <input type="text" id="new-gen-name" placeholder="Örn: Rüzgar Santrali-3">
                     </div>
+                    <div class="form-input-group">
+                        <label for="new-gen-icon">Tip / Simge</label>
+                        <select id="new-gen-icon" style="font-size: 1rem; padding: 5px 4px;">
+                            <option value="💨">💨 Rüzgar Tribünü</option>
+                            <option value="☀️">☀️ Güneş Paneli</option>
+                            <option value="🔋">🔋 Depolama / Batarya</option>
+                            <option value="🌊">🌊 Hidroelektrik</option>
+                            <option value="⚛️">⚛️ Nükleer</option>
+                            <option value="🔥">🔥 Termik</option>
+                        </select>
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-gen-cap">Kapasite(MW)</label>
+                        <input type="number" id="new-gen-cap" min="10" max="300" value="50" style="padding: 6px 4px;">
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-gen-x">Konum X</label>
+                        <input type="number" id="new-gen-x" min="50" max="750" value="400" style="padding: 6px 4px;">
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-gen-y">Konum Y</label>
+                        <input type="number" id="new-gen-y" min="50" max="350" value="200" style="padding: 6px 4px;">
+                    </div>
+                    <button class="btn-add" onclick="addNewGenerator()">EKLE</button>
                 </div>
             </div>
 
             <!-- Subscriber Manager -->
             <div class="panel">
-                <div class="panel-title">🖥️ Abone Veritabanı Yönetimi [Hash-Map O(1)]</div>
+                <div class="panel-title">
+                    <span class="title-icon">👥 Abone Veritabanı Yönetimi [Hash-Map O(1)]</span>
+                </div>
                 
                 <div class="node-list-container" id="node-list">
                     <!-- Dynamic subscriber rows will go here -->
                 </div>
 
                 <!-- Add Abone Form -->
-                <div class="add-abone-form">
+                <div class="add-node-form">
                     <div class="form-input-group">
                         <label for="new-name">Abone Adı</label>
                         <input type="text" id="new-name" placeholder="Örn: C Konutları">
@@ -632,8 +575,12 @@
                         <input type="number" id="new-demand" min="1" max="100" value="20" style="padding: 6px 4px;">
                     </div>
                     <div class="form-input-group">
-                        <label for="new-distance">Mesafe(km)</label>
-                        <input type="number" id="new-distance" min="1" max="30" value="5" style="padding: 6px 4px;">
+                        <label for="new-x">Konum X</label>
+                        <input type="number" id="new-x" min="50" max="750" value="500" style="padding: 6px 4px;">
+                    </div>
+                    <div class="form-input-group">
+                        <label for="new-y">Konum Y</label>
+                        <input type="number" id="new-y" min="50" max="350" value="150" style="padding: 6px 4px;">
                     </div>
                     <button class="btn-add" onclick="addNewSubscriber()">EKLE</button>
                 </div>
@@ -645,8 +592,8 @@
         <div class="visualization-panel">
             
             <!-- Network Topology Graphic -->
-            <div class="panel" style="padding: 1.2rem;">
-                <div class="panel-title" style="margin-bottom: 0.8rem; margin-left: 0.6rem;">📊 Şebeke Akış Diyagramı (Tek-Hat Şeması)</div>
+            <div class="panel" style="padding: 1rem;">
+                <div class="panel-title" style="margin-bottom: 0.8rem; margin-left: 0.2rem;">📊 Şebeke Akış Diyagramı (Tek-Hat Şeması)</div>
                 
                 <div class="network-viewport">
                     <svg class="network-svg" id="topology-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
@@ -655,11 +602,31 @@
                 </div>
             </div>
 
+            <!-- Global Telemetry Status -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Toplam Dağıtılan Güç</div>
+                    <div class="stat-val text-green" id="stat-supplied">0.0 MW</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Toplam İletim Kaybı</div>
+                    <div class="stat-val text-red" id="stat-loss">0.0 MW</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Şebeke Verimliliği</div>
+                    <div class="stat-val" id="stat-efficiency" style="color: var(--accent-blue);">100%</div>
+                </div>
+            </div>
+
             <!-- Academic Insight -->
             <div class="academic-info">
                 <div class="academic-info-title">📐 Algoritmik Optimizasyon Raporu</div>
                 <div class="academic-info-desc">
-                    Sistem veri tabanına arama ve güncelleme erişimi için <span class="academic-badge">O(1)</span> Hash-Map (JS Object) yapısını kullanır. Kaynak dağıtımı yapılmadan önce tüm aboneler öncelik seviyesi ve iletim hattı kayıplarını optimize eden mesafe parametresine göre <span class="academic-badge">O(N log N)</span> Heap Sort (Priority Queue) sıralamasına sokulur. Düşük mesafeli hatlara öncelik verilmesi, toplam hat direncini ve şebeke kaybını minimize eder (Greedy Choice).
+                    Şebekede birden fazla jeneratör varken, **Mesafe Bazlı Çoklu Dağıtım Algoritması** işletilir:
+                    1. Aboneler bir **Priority Queue** ile en kritik olandan en düşüğe göre sıralanır.
+                    2. Her abone için şebekedeki tüm jeneratörler mesafeye göre sıralanır (en yakın jeneratör en üstte).
+                    3. Abone, **Greedy** yaklaşımla kendisine en yakın olan ve boş kapasitesi bulunan jeneratörden beslenir.
+                    4. Mesafe, ekrandaki fiziksel koordinat farkından (<span class="academic-badge">Öklid Mesafesi</span>) dinamik hesaplanır. Jeneratörleri aboneye yaklaştırdığınızda iletim direnç kayıpları düşer ve sistem verimliliği artar!
                 </div>
             </div>
 
@@ -669,113 +636,134 @@
 </div>
 
 <script>
-    // In-memory Database simulating Python dict structure
-    let database = {
-        "Merkez Hastanesi": { priority: 1, demand: 30, distance: 2, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏥", x: 400, y: 55 },
-        "Acil Durum İstasyonu": { priority: 1, demand: 10, distance: 1.5, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🚨", x: 560, y: 110 },
-        "A Mahallesi Konutları": { priority: 2, demand: 25, distance: 5, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏠", x: 600, y: 290 },
-        "B Mahallesi Konutları": { priority: 2, demand: 20, distance: 8, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏠", x: 410, y: 340 },
-        "Organize Sanayi Bölgesi": { priority: 3, demand: 50, distance: 12, status: "Enerji Yok", supplied: 0, loss: 0, icon: "🏭", x: 180, y: 250 },
-        "Teknoloji Geliştirme Parkı": { priority: 3, demand: 15, distance: 6, status: "Enerji Yok", supplied: 0, loss: 0, icon: "💻", x: 200, y: 95 }
+    // Multi-Generator Database
+    let generators = {
+        "Ana Üretici (Rüzgar)": { type: "wind", capacity: 100, remaining: 100, icon: "💨", x: 400, y: 200, color: "#0284c7" },
+        "Yedek Üretici (Güneş)": { type: "solar", capacity: 30, remaining: 30, icon: "☀️", x: 300, y: 120, color: "#eab308" }
     };
 
-    const sourceNode = { name: "Yenilenebilir Kaynak", x: 400, y: 200 };
+    // Subscriber Database with explicit pixel coordinates
+    let database = {
+        "Merkez Hastanesi": { priority: 1, demand: 30, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "🏥", x: 400, y: 55 },
+        "Acil Durum İstasyonu": { priority: 1, demand: 10, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "🚨", x: 560, y: 110 },
+        "A Mahallesi Konutları": { priority: 2, demand: 25, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "🏠", x: 600, y: 290 },
+        "B Mahallesi Konutları": { priority: 2, demand: 20, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "🏠", x: 410, y: 340 },
+        "Organize Sanayi Bölgesi": { priority: 3, demand: 50, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "🏭", x: 180, y: 250 },
+        "Teknoloji Geliştirme Parkı": { priority: 3, demand: 15, status: "Enerji Yok", supplied: 0, loss: 0, supplied_by: [], icon: "💻", x: 200, y: 95 }
+    };
 
-    const powerSlider = document.getElementById("power-slider");
-    const powerInput = document.getElementById("power-input-num");
     const nodeList = document.getElementById("node-list");
+    const generatorList = document.getElementById("generator-list");
     const svgEl = document.getElementById("topology-svg");
 
-    // Initialize UI Event Listeners - Both Synced together!
-    // Changing the slider updates the number box
-    powerSlider.addEventListener("input", (e) => {
-        const val = parseFloat(e.target.value);
-        powerInput.value = val;
-        distributeEnergy(val);
-    });
+    // Dynamic scale helper: 40 pixels on screen = 1 km in real-world simulation
+    function calculateDistanceKm(x1, y1, x2, y2) {
+        const pixelDist = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        return Math.max(0.5, pixelDist / 40); // minimum 0.5 km limit
+    }
 
-    // Changing the number box updates the slider
-    powerInput.addEventListener("input", (e) => {
-        let val = parseFloat(e.target.value);
-        if (isNaN(val) || val < 0) {
-            val = 0;
+    // Transmission Loss formula matching Python code (1% per km)
+    function calculateLoss(demand, distanceKm) {
+        const lossCoefficient = 0.01;
+        return demand * (distanceKm * lossCoefficient);
+    }
+
+    // Multi-Generator Distribution Algorithm
+    function distributeEnergy() {
+        // 1. Reset generator states
+        let totalCapacity = 0;
+        for (let key in generators) {
+            generators[key].remaining = generators[key].capacity;
+            totalCapacity += generators[key].capacity;
         }
-        powerSlider.value = val;
-        distributeEnergy(val);
-    });
+        document.getElementById("total-gen-mw").innerText = totalCapacity;
 
-    function setScenario(val) {
-        powerSlider.value = val;
-        powerInput.value = val;
-        distributeEnergy(val);
-    }
-
-    // Transmission Loss formula matching Python code
-    function calculateLoss(demand, distance) {
-        const lossCoefficient = 0.01; // 1% per km
-        return demand * (distance * lossCoefficient);
-    }
-
-    // Distribution algorithm (Priority Queue logic simulated via JS array sorting)
-    function distributeEnergy(totalPower) {
-        // Reset states
+        // 2. Reset subscriber states
         for (let key in database) {
             database[key].status = "Enerji Kesildi";
             database[key].supplied = 0;
             database[key].loss = 0;
+            database[key].supplied_by = []; // array of { genName, amount, loss, distance }
         }
 
-        // Build Priority Queue list and sort:
-        // Priority (1 > 2 > 3) then Distance (shorter distance first for greedy loss reduction)
+        // 3. Build Priority Queue for subscribers
         let pq = [];
         for (let name in database) {
             pq.push({ name: name, ...database[name] });
         }
-        pq.sort((a, b) => {
-            if (a.priority !== b.priority) {
-                return a.priority - b.priority;
-            }
-            return a.distance - b.distance;
-        });
+        // Priority first (1 > 2 > 3).
+        pq.sort((a, b) => a.priority - b.priority);
 
-        let remaining = totalPower;
         let totalSupplied = 0;
         let totalLoss = 0;
         let hasCutoff = false;
 
-        for (let item of pq) {
-            if (remaining <= 0) {
-                database[item.name].status = "Enerji Kesildi";
-                hasCutoff = true;
-                continue;
+        // 4. Greedy Allocation per subscriber in Priority Queue order
+        for (let sub of pq) {
+            let remainingDemand = sub.demand;
+
+            // Sort all generators by distance to THIS subscriber
+            let sortedGens = [];
+            for (let genName in generators) {
+                const dist = calculateDistanceKm(sub.x, sub.y, generators[genName].x, generators[genName].y);
+                sortedGens.push({ name: genName, distance: dist, ...generators[genName] });
+            }
+            sortedGens.sort((a, b) => a.distance - b.distance); // Closest generator first
+
+            // Draw power from the closest generator with capacity
+            for (let gen of sortedGens) {
+                if (remainingDemand <= 0) break;
+                if (generators[gen.name].remaining <= 0) continue;
+
+                const lossRatio = gen.distance * 0.01; // 1% loss per km
+                const neededFromGen = remainingDemand * (1 + lossRatio);
+
+                let suppliedAmount = 0;
+                let lossAmount = 0;
+
+                if (generators[gen.name].remaining >= neededFromGen) {
+                    // Generator can fully supply the remaining demand
+                    generators[gen.name].remaining -= neededFromGen;
+                    suppliedAmount = remainingDemand;
+                    lossAmount = remainingDemand * lossRatio;
+                    remainingDemand = 0;
+                } else {
+                    // Generator can only partially supply
+                    const availablePower = generators[gen.name].remaining;
+                    suppliedAmount = availablePower / (1 + lossRatio);
+                    lossAmount = availablePower - suppliedAmount;
+                    generators[gen.name].remaining = 0;
+                    remainingDemand -= suppliedAmount;
+                }
+
+                if (suppliedAmount > 0) {
+                    database[sub.name].supplied_by.push({
+                        genName: gen.name,
+                        amount: suppliedAmount,
+                        loss: lossAmount,
+                        distance: gen.distance,
+                        color: gen.color
+                    });
+                    database[sub.name].supplied += suppliedAmount;
+                    database[sub.name].loss += lossAmount;
+                    totalSupplied += suppliedAmount;
+                    totalLoss += lossAmount;
+                }
             }
 
-            const loss = calculateLoss(item.demand, item.distance);
-            const totalNeeded = item.demand + loss;
-
-            if (remaining >= totalNeeded) {
-                remaining -= totalNeeded;
-                database[item.name].status = "Besleniyor (%100)";
-                database[item.name].supplied = item.demand;
-                database[item.name].loss = loss;
-                totalSupplied += item.demand;
-                totalLoss += loss;
-            } else if (remaining > 0) {
-                // Partial allocation
-                const supplied = remaining / (1 + (item.distance * 0.01));
-                const actualLoss = remaining - supplied;
-
-                database[item.name].status = `Kısıtlı (${supplied.toFixed(1)} MW)`;
-                database[item.name].supplied = supplied;
-                database[item.name].loss = actualLoss;
-                totalSupplied += supplied;
-                totalLoss += actualLoss;
-                remaining = 0;
+            // Update status based on total supplied
+            if (database[sub.name].supplied >= sub.demand - 0.01) {
+                database[sub.name].status = "Besleniyor (%100)";
+            } else if (database[sub.name].supplied > 0) {
+                database[sub.name].status = `Kısıtlı (${database[sub.name].supplied.toFixed(1)} MW)`;
+                hasCutoff = true;
+            } else {
+                database[sub.name].status = "Enerji Kesildi";
                 hasCutoff = true;
             }
         }
 
-        // Update statistics
+        // Update Global Telemetry Stats
         document.getElementById("stat-supplied").innerText = `${totalSupplied.toFixed(1)} MW`;
         document.getElementById("stat-loss").innerText = `${totalLoss.toFixed(1)} MW`;
         
@@ -783,14 +771,14 @@
         const efficiency = totalNeededEff > 0 ? (totalSupplied / totalNeededEff) * 100 : 100;
         document.getElementById("stat-efficiency").innerText = `${efficiency.toFixed(1)}%`;
 
-        // Update system status header based on grid state
+        // Update SCADA system alert banner
         const modeBadge = document.getElementById("system-mode-badge");
         const modeText = document.getElementById("system-mode-text");
         if (hasCutoff) {
             modeBadge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
             modeBadge.style.borderColor = "rgba(239, 68, 68, 0.2)";
             modeBadge.style.color = "var(--accent-red)";
-            modeText.innerText = "YETERSİZ KAYNAK / KRİZ MODU";
+            modeText.innerText = "KAYNAK YETERSİZ / KRİZ DAĞITIMI";
             document.querySelector(".status-dot").style.backgroundColor = "var(--accent-red)";
         } else {
             modeBadge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
@@ -800,12 +788,51 @@
             document.querySelector(".status-dot").style.backgroundColor = "var(--accent-green)";
         }
 
-        updateSubscriberUI();
+        updateUIElements();
         drawTopologyGraph();
     }
 
-    // Update the list showing subscribers
-    function updateSubscriberUI() {
+    // Update UI lists
+    function updateUIElements() {
+        // 1. Update Generators List UI
+        generatorList.innerHTML = "";
+        for (let name in generators) {
+            const gen = generators[name];
+            const loadFactor = ((gen.capacity - gen.remaining) / gen.capacity) * 100;
+            
+            generatorList.innerHTML += `
+                <div class="gen-node-row">
+                    <div class="gen-info-left">
+                        <span class="gen-icon">${gen.icon}</span>
+                        <div>
+                            <div class="gen-name">${name}</div>
+                            <div class="gen-meta">Kapasite: ${gen.capacity} MW | Kalan: ${gen.remaining.toFixed(1)} MW</div>
+                            <div class="gen-power-usage" style="color: ${loadFactor > 90 ? 'var(--accent-red)' : (loadFactor > 50 ? 'var(--accent-yellow)' : 'var(--accent-green)')}">Yüklenme: ${loadFactor.toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    <div class="gen-list-sliders">
+                        <div class="inline-slider-group">
+                            <span>Güç:</span>
+                            <input type="range" min="0" max="250" step="5" value="${gen.capacity}" oninput="updateGeneratorPower('${name}', this.value)">
+                            <span class="val">${gen.capacity} MW</span>
+                        </div>
+                        <div class="inline-slider-group">
+                            <span>Konum X:</span>
+                            <input type="range" min="50" max="750" value="${gen.x}" oninput="updateGeneratorPos('${name}', 'x', this.value)">
+                            <span class="val">X: ${gen.x}</span>
+                        </div>
+                        <div class="inline-slider-group">
+                            <span>Konum Y:</span>
+                            <input type="range" min="50" max="350" value="${gen.y}" oninput="updateGeneratorPos('${name}', 'y', this.value)">
+                            <span class="val">Y: ${gen.y}</span>
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteGenerator('${name}')" title="Jeneratörü Kaldır" style="margin-left: 10px;">🗑️</button>
+                </div>
+            `;
+        }
+
+        // 2. Update Subscribers List UI
         nodeList.innerHTML = "";
         for (let name in database) {
             const info = database[name];
@@ -813,6 +840,9 @@
             let statusClass = "text-red";
             if (info.status.includes("Besleniyor (%100)")) statusClass = "text-green";
             else if (info.status.includes("Kısıtlı")) statusClass = "text-yellow";
+
+            // List supplying generators detail
+            let sourcesStr = info.supplied_by.map(s => `${s.genName.substring(0, 10)} (${s.amount.toFixed(0)}MW)`).join(", ") || "Yok";
 
             nodeList.innerHTML += `
                 <div class="sub-node-row">
@@ -823,7 +853,8 @@
                                 ${name}
                                 <span class="priority-badge badge-${info.priority}">Öncelik P-${info.priority}</span>
                             </div>
-                            <div class="sub-meta">Talep: ${info.demand} MW | İletim Kaybı: ${info.loss.toFixed(1)} MW (Mesafe: ${info.distance} km)</div>
+                            <div class="sub-meta">Talep: ${info.demand} MW | Kaynaklar: [ ${sourcesStr} ]</div>
+                            <div class="sub-meta" style="color: var(--accent-blue);">Toplam Kayıp: ${info.loss.toFixed(1)} MW</div>
                         </div>
                     </div>
                     <div class="sub-status-box" style="display: flex; align-items: center; gap: 12px;">
@@ -838,68 +869,136 @@
         }
     }
 
+    // Inline update handlers
+    function updateGeneratorPower(name, val) {
+        generators[name].capacity = parseFloat(val);
+        distributeEnergy();
+    }
+
+    function updateGeneratorPos(name, axis, val) {
+        generators[name][axis] = parseInt(val);
+        distributeEnergy();
+    }
+
+    function deleteGenerator(name) {
+        if (Object.keys(generators).length <= 1) {
+            alert("En az bir adet jeneratör şebekede aktif bulunmalıdır!");
+            return;
+        }
+        if (confirm(`"${name}" jeneratörünü silmek istediğinize emin misiniz?`)) {
+            delete generators[name];
+            distributeEnergy();
+        }
+    }
+
+    // Add new generator
+    function addNewGenerator() {
+        const nameInput = document.getElementById("new-gen-name");
+        const iconSelect = document.getElementById("new-gen-icon");
+        const capInput = document.getElementById("new-gen-cap");
+        const xInput = document.getElementById("new-gen-x");
+        const yInput = document.getElementById("new-gen-y");
+
+        const name = nameInput.value.trim();
+        const icon = iconSelect.value;
+        const capacity = parseFloat(capInput.value);
+        const x = parseInt(xInput.value);
+        const y = parseInt(yInput.value);
+
+        if (!name) {
+            alert("Lütfen jeneratör ismi girin!");
+            return;
+        }
+        if (generators[name]) {
+            alert("Bu isimde bir jeneratör zaten mevcut!");
+            return;
+        }
+
+        // Color maps for generators based on type icon
+        const colors = { "💨": "#0284c7", "☀️": "#eab308", "🔋": "#10b981", "🌊": "#06b6d4", "⚛️": "#a855f7", "🔥": "#f97316" };
+        const color = colors[icon] || "#6b7280";
+
+        generators[name] = {
+            type: "custom",
+            capacity: capacity,
+            remaining: capacity,
+            icon: icon,
+            x: x,
+            y: y,
+            color: color
+        };
+
+        nameInput.value = "";
+        distributeEnergy();
+    }
+
     // Add new subscriber
     function addNewSubscriber() {
         const nameInput = document.getElementById("new-name");
         const iconSelect = document.getElementById("new-icon");
         const prioritySelect = document.getElementById("new-priority");
         const demandInput = document.getElementById("new-demand");
-        const distanceInput = document.getElementById("new-distance");
+        const xInput = document.getElementById("new-x");
+        const yInput = document.getElementById("new-y");
 
         const name = nameInput.value.trim();
         const icon = iconSelect.value;
         const priority = parseInt(prioritySelect.value);
         const demand = parseFloat(demandInput.value);
-        const distance = parseFloat(distanceInput.value);
+        const x = parseInt(xInput.value);
+        const y = parseInt(yInput.value);
 
         if (!name) {
-            alert("Lütfen geçerli bir abone adı girin!");
+            alert("Lütfen abone adı girin!");
             return;
         }
-
         if (database[name]) {
             alert("Bu isimde bir abone zaten mevcut!");
             return;
         }
 
-        // Random coordinates for visual placement on SVG canvas
-        const x = 120 + Math.random() * 560;
-        const y = 60 + Math.random() * 270;
-
         database[name] = {
             priority: priority,
             demand: demand,
-            distance: distance,
             status: "Enerji Yok",
             supplied: 0,
             loss: 0,
+            supplied_by: [],
             icon: icon,
             x: x,
             y: y
         };
 
-        // Reset input fields
         nameInput.value = "";
-        distributeEnergy(parseFloat(powerSlider.value));
+        distributeEnergy();
     }
 
     // Delete subscriber
     function deleteSubscriber(name) {
         if (confirm(`"${name}" abonesini silmek istediğinize emin misiniz?`)) {
             delete database[name];
-            distributeEnergy(parseFloat(powerSlider.value));
+            distributeEnergy();
         }
+    }
+
+    // Quick Scenario set helper
+    function setScenario(val) {
+        // Adjust main Wind generator capacity as total power representation
+        if (generators["Ana Üretici (Rüzgar)"]) {
+            generators["Ana Üretici (Rüzgar)"].capacity = val;
+        }
+        distributeEnergy();
     }
 
     // Draw the network graph using animated SVG paths
     function drawTopologyGraph() {
         svgEl.innerHTML = "";
 
-        // Definitions for CAD blueprint grid and markers
+        // Definitions for CAD grid and markers
         svgEl.innerHTML += `
             <defs>
                 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.04)" stroke-width="1"/>
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.035)" stroke-width="1"/>
                 </pattern>
                 <marker id="arrow-green" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
@@ -916,51 +1015,94 @@
         // Draw grid blueprint background
         svgEl.innerHTML += `<rect width="100%" height="100%" class="grid-pattern" />`;
 
-        // 1. Draw transmission lines
-        for (let name in database) {
-            const node = database[name];
-            let color = "rgba(239, 68, 68, 0.25)";
-            let marker = "url(#arrow-red)";
-            let flowClass = "flow-line off";
-
-            if (node.status.includes("Besleniyor (%100)")) {
-                color = "#10b981";
-                marker = "url(#arrow-green)";
-                flowClass = "flow-line";
-            } else if (node.status.includes("Kısıtlı")) {
-                color = "#f59e0b";
-                marker = "url(#arrow-yellow)";
-                flowClass = "flow-line";
+        // 1. Draw transmission lines from supplying generators to subscribers
+        for (let subName in database) {
+            const sub = database[subName];
+            
+            // Draw gray dotted fallback line to closest generator if completely cut off
+            if (sub.supplied_by.length === 0) {
+                // Find closest generator
+                let closestGen = null;
+                let minDist = 9999;
+                for (let gName in generators) {
+                    let d = Math.sqrt(Math.pow(sub.x - generators[gName].x, 2) + Math.pow(sub.y - generators[gName].y, 2));
+                    if (d < minDist) {
+                        minDist = d;
+                        closestGen = generators[gName];
+                    }
+                }
+                if (closestGen) {
+                    svgEl.innerHTML += `
+                        <line x1="${closestGen.x}" y1="${closestGen.y}" x2="${sub.x}" y2="${sub.y}" 
+                              stroke="rgba(239, 68, 68, 0.15)" stroke-dasharray="2, 4" stroke-width="1.5" />
+                    `;
+                }
             }
 
-            // Connection line
+            // Draw active flow lines
+            for (let supply of sub.supplied_by) {
+                const gen = generators[supply.genName];
+                if (!gen) continue; // safety fallback
+
+                let color = "#10b981"; // full supply
+                let marker = "url(#arrow-green)";
+                let flowClass = "flow-line";
+
+                if (sub.status.includes("Kısıtlı")) {
+                    color = "#f59e0b";
+                    marker = "url(#arrow-yellow)";
+                }
+
+                // Connection line
+                svgEl.innerHTML += `
+                    <line x1="${gen.x}" y1="${gen.y}" x2="${sub.x}" y2="${sub.y}" 
+                          stroke="${color}" stroke-opacity="0.85" stroke-width="${1.5 + (supply.amount / 15)}" marker-end="${marker}" class="${flowClass}" />
+                `;
+                
+                // Draw distance label
+                const midX = (gen.x + sub.x) / 2;
+                const midY = (gen.y + sub.y) / 2 - 10;
+                svgEl.innerHTML += `
+                    <g>
+                        <rect x="${midX - 20}" y="${midY - 7}" width="40" height="12" rx="3" fill="#06090f" stroke="rgba(255,255,255,0.06)" stroke-width="0.75"/>
+                        <text x="${midX}" y="${midY + 2}" fill="#9ca3af" font-size="8" font-weight="700" text-anchor="middle">
+                            ${supply.distance.toFixed(1)} km
+                        </text>
+                    </g>
+                `;
+            }
+        }
+
+        // 2. Draw Generator nodes
+        for (let genName in generators) {
+            const gen = generators[genName];
+            const loadFactor = ((gen.capacity - gen.remaining) / gen.capacity) * 100;
+            const borderCol = loadFactor > 90 ? "var(--accent-red)" : (loadFactor > 20 ? "var(--accent-yellow)" : "var(--accent-green)");
+
             svgEl.innerHTML += `
-                <line x1="${sourceNode.x}" y1="${sourceNode.y}" x2="${node.x}" y2="${node.y}" 
-                      stroke="${color}" stroke-width="2" marker-end="${marker}" class="${flowClass}" />
-            `;
-            
-            // Distance label
-            const midX = (sourceNode.x + node.x) / 2;
-            const midY = (sourceNode.y + node.y) / 2 - 10;
-            svgEl.innerHTML += `
-                <g>
-                    <rect x="${midX - 22}" y="${midY - 8}" width="44" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                    <text x="${midX}" y="${midY + 2}" fill="#9ca3af" font-size="9" font-weight="700" text-anchor="middle">
-                        ${node.distance} km
-                    </text>
+                <g transform="translate(${gen.x}, ${gen.y})">
+                    <circle cx="0" cy="0" r="16" fill="#1f2937" stroke="${gen.color}" stroke-width="2.5" />
+                    <circle cx="0" cy="0" r="12" fill="#0f172a" stroke="${borderCol}" stroke-width="1.5" />
+                    <text x="0" y="3.5" font-size="12" text-anchor="middle">${gen.icon}</text>
+                    
+                    <!-- Generator name label -->
+                    <g transform="translate(0, -23)">
+                        <rect x="-60" y="-7" width="120" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" />
+                        <text x="0" y="3" fill="#fff" font-size="8" font-weight="700" text-anchor="middle">
+                            ${genName.substring(0, 18)}
+                        </text>
+                    </g>
+
+                    <!-- Generator Telemetry (MW capacity / Remaining) -->
+                    <g transform="translate(0, 23)">
+                        <rect x="-35" y="-6" width="70" height="12" rx="3" fill="#111827" stroke="rgba(255,255,255,0.06)" stroke-width="0.75" />
+                        <text x="0" y="3.5" fill="#9ca3af" font-size="8" font-weight="800" text-anchor="middle">
+                            ${(gen.capacity - gen.remaining).toFixed(0)} / ${gen.capacity} MW
+                        </text>
+                    </g>
                 </g>
             `;
         }
-
-        // 2. Draw Generator Substation (Source node)
-        svgEl.innerHTML += `
-            <g transform="translate(${sourceNode.x}, ${sourceNode.y})">
-                <circle cx="0" cy="0" r="18" fill="#1f2937" stroke="#374151" stroke-width="2" />
-                <circle cx="0" cy="0" r="12" fill="#0284c7" />
-                <text x="0" y="3" fill="#fff" font-size="10" font-weight="800" text-anchor="middle">⚡</text>
-                <text x="0" y="-24" fill="#fff" font-size="10" font-weight="700" text-anchor="middle" letter-spacing="0.5px">JENERATÖR</text>
-            </g>
-        `;
 
         // 3. Draw Subscriber nodes
         for (let name in database) {
@@ -977,20 +1119,20 @@
             svgEl.innerHTML += `
                 <g transform="translate(${node.x}, ${node.y})">
                     <!-- Base circle representing the subscriber node -->
-                    <circle cx="0" cy="0" r="15" fill="#1f2937" stroke="${color}" stroke-width="2.5" />
-                    <text x="0" y="4" font-size="12" text-anchor="middle">${icon}</text>
+                    <circle cx="0" cy="0" r="14" fill="#1f2937" stroke="${color}" stroke-width="2" />
+                    <text x="0" y="4.5" font-size="11" text-anchor="middle">${icon}</text>
                     
                     <!-- Label box -->
-                    <g transform="translate(0, -25)">
-                        <rect x="-65" y="-8" width="130" height="16" rx="4" fill="#111827" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
-                        <text x="0" y="3" fill="#f3f4f6" font-size="8.5" font-weight="600" text-anchor="middle">
+                    <g transform="translate(0, -23)">
+                        <rect x="-60" y="-7" width="120" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.1)" stroke-width="0.75" />
+                        <text x="0" y="3" fill="#f3f4f6" font-size="8" font-weight="600" text-anchor="middle">
                             ${name.substring(0, 18)}${name.length > 18 ? '...' : ''}
                         </text>
                     </g>
                     
                     <!-- Small details below the node (Priority & Demand) -->
-                    <g transform="translate(0, 24)">
-                        <rect x="-32" y="-6" width="64" height="12" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" />
+                    <g transform="translate(0, 22)">
+                        <rect x="-30" y="-5" width="60" height="10" rx="3" fill="#111827" stroke="rgba(255,255,255,0.06)" stroke-width="0.75" />
                         <text x="0" y="3" fill="#9ca3af" font-size="7.5" font-weight="700" text-anchor="middle">
                             P${node.priority} | ${node.demand} MW
                         </text>
@@ -1001,7 +1143,7 @@
     }
 
     // Run first calculation
-    distributeEnergy(100);
+    distributeEnergy();
 </script>
 
 </body>
