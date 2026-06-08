@@ -3,81 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartGrid-Core: Enerji Dağıtım Simülasyonu</title>
-    <!-- Google Fonts: Outfit for modern look -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>SmartGrid-Core: Endüstriyel SCADA Enerji Dağıtım Paneli</title>
+    <!-- Google Fonts: Inter for professional engineering typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-glow: radial-gradient(circle at 50% 50%, #1a153a 0%, #0d0b1a 100%);
-            --card-bg: rgba(22, 20, 38, 0.75);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #9fa0b5;
-            --accent-cyan: #06b6d4;
-            --accent-purple: #8b5cf6;
-            --status-green: #10b981;
-            --status-yellow: #f59e0b;
-            --status-red: #ef4444;
-            --glow-green: 0 0 20px rgba(16, 185, 129, 0.4);
-            --glow-yellow: 0 0 20px rgba(245, 158, 11, 0.4);
-            --glow-red: 0 0 20px rgba(239, 68, 68, 0.4);
-            --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.5);
+            --bg-main: #0b0f19;
+            --bg-card: #111827;
+            --bg-card-hover: #1f2937;
+            --border-color: #374151;
+            --border-light: rgba(255, 255, 255, 0.05);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-blue: #0284c7;
+            --accent-blue-hover: #0369a1;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-family);
             user-select: none;
         }
 
         body {
-            background: var(--bg-glow);
+            background-color: var(--bg-main);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1440px;
             margin: 0 auto;
         }
 
-        /* Header Style */
+        /* SCADA Professional Header Style */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--card-border);
-            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .logo-section h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .logo-section h1 span.scada-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            background: var(--accent-blue);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
         }
 
         .logo-section p {
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             margin-top: 4px;
         }
 
-        /* Layout */
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* Layout Grid */
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr 1.3fr;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         @media (max-width: 1024px) {
@@ -86,34 +127,34 @@
             }
         }
 
-        /* Glassmorphic Cards */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            padding: 1.8rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* SCADA Flat Panels */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .card:hover {
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-title {
-            font-size: 1.3rem;
+        .panel-title {
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--accent-cyan);
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.6rem;
         }
 
-        /* Sliders and Controls */
+        /* Sliders and Telemetry Input Controls */
         .control-group {
-            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
 
         .control-label {
@@ -121,157 +162,135 @@
             justify-content: space-between;
             align-items: center;
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             margin-bottom: 0.8rem;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         .control-value-container {
             display: flex;
             align-items: center;
-            gap: 5px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            padding: 4px 10px;
-            border-radius: 10px;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
-        /* Direct Power Input Field */
         .power-num-input {
-            width: 70px;
+            width: 65px;
             background: transparent;
             border: none;
-            color: var(--accent-cyan);
-            font-weight: 800;
-            font-size: 1.1rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+            font-size: 1rem;
             text-align: right;
             outline: none;
             font-family: inherit;
         }
 
-        /* Remove spin arrows from input number */
-        .power-num-input::-webkit-outer-spin-button,
-        .power-num-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
         .control-value {
             color: var(--text-secondary);
+            font-size: 0.8rem;
             font-weight: 600;
-            font-size: 0.9rem;
         }
 
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            background: #1f2937;
             outline: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            background: var(--accent-blue);
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-            transition: transform 0.1s ease;
+            border: 2px solid #fff;
+            transition: background 0.1s ease;
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+            background: var(--accent-blue-hover);
         }
 
-        /* Quick Scenarios Buttons */
+        /* Flat Scenario Buttons */
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
 
         button {
-            padding: 0.8rem 1.2rem;
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
         }
 
         button:hover {
-            background: var(--accent-cyan);
-            color: #000;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+            background: var(--border-color);
         }
 
-        button.btn-scenario-1 {
-            border-color: rgba(16, 185, 129, 0.3);
-        }
         button.btn-scenario-1:hover {
-            background: var(--status-green);
-            color: #000;
-            border-color: var(--status-green);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
         }
 
-        button.btn-scenario-2 {
-            border-color: rgba(239, 68, 68, 0.3);
-        }
         button.btn-scenario-2:hover {
-            background: var(--status-red);
-            color: #fff;
-            border-color: var(--status-red);
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
         }
 
-        /* Summary Stats */
+        /* Telemetry Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            gap: 0.75rem;
+            margin-top: 1rem;
         }
 
         .stat-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.8rem;
             text-align: center;
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .stat-val {
-            font-size: 1.3rem;
-            font-weight: 800;
+            font-size: 1.15rem;
+            font-weight: 700;
         }
 
-        /* Visualization Network Graph */
-        .visualization-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
+        /* Visual Topology Frame */
         .network-viewport {
             width: 100%;
             height: 380px;
-            background: rgba(10, 8, 20, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: #06090f;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
@@ -281,51 +300,46 @@
             height: 100%;
         }
 
-        /* SVG Glow filters */
-        .pulse-source {
-            animation: pulse-source-glow 2s infinite alternate;
+        /* Dotted Engineering Blueprint Grid */
+        .grid-pattern {
+            fill: url(#grid);
         }
 
-        @keyframes pulse-source-glow {
-            0% { r: 16; opacity: 0.7; }
-            100% { r: 24; opacity: 0.3; }
-        }
-
-        /* Running power flow animation */
+        /* Connection line animations */
         .flow-line {
-            stroke-dasharray: 6, 6;
-            animation: flow 30s linear infinite;
+            stroke-dasharray: 4, 4;
+            animation: flow-run 40s linear infinite;
         }
 
         .flow-line.off {
             stroke-dasharray: 0;
             animation: none;
-            stroke-opacity: 0.2;
+            stroke-opacity: 0.15;
         }
 
-        @keyframes flow {
+        @keyframes flow-run {
             to {
                 stroke-dashoffset: -1000;
             }
         }
 
-        /* Node Cards */
+        /* Node List */
         .node-list-container {
-            max-height: 400px;
+            max-height: 380px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             padding-right: 5px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .node-list-container::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
 
         .node-list-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--border-color);
             border-radius: 3px;
         }
 
@@ -333,15 +347,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 0.9rem 1.2rem;
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            transition: background 0.15s ease;
         }
 
         .sub-node-row:hover {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .sub-info-left {
@@ -351,30 +365,38 @@
         }
 
         .priority-badge {
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
             text-transform: uppercase;
         }
 
-        .badge-1 { background: rgba(239, 68, 68, 0.15); color: var(--status-red); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge-2 { background: rgba(245, 158, 11, 0.15); color: var(--status-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-3 { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-1 { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-2 { background: rgba(245, 158, 11, 0.1); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-3 { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
 
         .sub-icon {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
         }
 
         .sub-name {
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
         .sub-meta {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .sub-status-box {
@@ -382,28 +404,27 @@
         }
 
         .sub-status-text {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
         }
 
-        .text-green { color: var(--status-green); }
-        .text-yellow { color: var(--status-yellow); }
-        .text-red { color: var(--status-red); }
+        .text-green { color: var(--accent-green); }
+        .text-yellow { color: var(--accent-yellow); }
+        .text-red { color: var(--accent-red); }
 
         .sub-power-supplied {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-top: 2px;
         }
 
-        /* Management Panel Inputs */
+        /* SCADA Editor Form */
         .add-abone-form {
             display: grid;
-            grid-template-columns: 1.3fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+            grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
             gap: 8px;
             align-items: flex-end;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--card-border);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
         }
 
         @media (max-width: 768px) {
@@ -415,88 +436,91 @@
         .form-input-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .form-input-group label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         input[type="text"], input[type="number"], select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 8px;
             color: #fff;
             outline: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            border-color: var(--accent-cyan);
+            border-color: var(--accent-blue);
         }
 
         button.btn-add {
-            background: var(--accent-cyan);
-            color: #000;
-            font-weight: bold;
+            background: var(--accent-blue);
+            color: #fff;
+            font-weight: 600;
             border: none;
-            border-radius: 8px;
-            padding: 9px 15px;
+            border-radius: 6px;
+            padding: 8px 12px;
             cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        button.btn-add:hover {
+            background: var(--accent-blue-hover);
         }
 
         button.btn-delete {
             background: transparent;
             border: none;
-            color: var(--status-red);
-            font-size: 1.1rem;
+            color: var(--accent-red);
+            font-size: 1rem;
             cursor: pointer;
             padding: 2px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            opacity: 0.5;
+            transition: opacity 0.15s;
         }
 
         button.btn-delete:hover {
             opacity: 1;
-            box-shadow: none;
-            background: transparent;
         }
 
-        /* Academic Explainer Card */
+        /* Technical Report Box */
         .academic-info {
-            background: rgba(139, 92, 246, 0.08);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-top: 2rem;
+            background: rgba(2, 132, 199, 0.05);
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1rem;
         }
 
         .academic-info-title {
-            color: var(--accent-purple);
-            font-size: 1.15rem;
-            font-weight: 800;
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .academic-info-desc {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.5;
         }
 
         .academic-badge {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--accent-cyan);
-            padding: 2px 6px;
-            border-radius: 4px;
+            background: rgba(2, 132, 199, 0.15);
+            color: #38bdf8;
+            padding: 1px 5px;
+            border-radius: 3px;
             font-family: monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
         }
     </style>
@@ -507,13 +531,15 @@
     <!-- Header -->
     <header>
         <div class="logo-section">
-            <h1>⚡ SmartGrid-Core Dashboard</h1>
-            <p>Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritması & Topoloji Simülatörü</p>
+            <h1>🔌 SMARTGRID-CORE <span class="scada-badge">SCADA SYSTEM</span></h1>
+            <p>Dinamik Dengeleme & Enerji Dağıtım İzleme ve Kontrol Ünitesi</p>
         </div>
-        <div>
-            <span style="color: var(--text-secondary); font-size: 0.9rem;">
-                Ders: <strong style="color: #fff;">Algoritmalar Projesi</strong>
-            </span>
+        <div class="system-status">
+            <span style="color: var(--text-secondary);">Şebeke Durumu:</span>
+            <div class="status-indicator" id="system-mode-badge">
+                <div class="status-dot"></div>
+                <span id="system-mode-text">NOMİNAL / ÇALIŞIYOR</span>
+            </div>
         </div>
     </header>
 
@@ -521,52 +547,50 @@
     <div class="grid-layout">
         
         <!-- Controls Column -->
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
             
             <!-- Energy Controller -->
-            <div class="card">
-                <div class="card-title">🔋 Yenilenebilir Enerji Girdisi</div>
+            <div class="panel">
+                <div class="panel-title">⚙️ Yenilenebilir Kaynak Kontrolü</div>
                 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>Anlık Üretilen Güç Miktarı</span>
+                        <span>Üretilen Toplam Güç (Güneş & Rüzgar)</span>
                         <div class="control-value-container">
-                            <!-- Direct numeric input of total power flow -->
-                            <input type="number" id="power-input-num" min="0" max="1000" step="1" value="100" class="power-num-input" title="Doğrudan sayı girmek için buraya tıklayın">
+                            <input type="number" id="power-input-num" min="0" max="1000" step="1" value="100" class="power-num-input" title="Sayısal girişi değiştirmek için tıklayın">
                             <span class="control-value">MW</span>
                         </div>
                     </div>
-                    <!-- Slider synced with numeric input -->
                     <input type="range" id="power-slider" min="0" max="200" step="5" value="100">
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn-scenario-1" onclick="setScenario(100)">🌞 Senaryo 1: 100 MW</button>
-                    <button class="btn-scenario-2" onclick="setScenario(30)">☁️ Senaryo 2: 30 MW</button>
+                    <button class="btn-scenario-1" onclick="setScenario(100)">🌞 Gün Senaryosu: 100 MW</button>
+                    <button class="btn-scenario-2" onclick="setScenario(30)">☁️ Gece/Kriz Senaryosu: 30 MW</button>
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-label">Toplam Tüketilen Güç</div>
+                        <div class="stat-label">Toplam Dağıtılan Güç</div>
                         <div class="stat-val text-green" id="stat-supplied">0.0 MW</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Toplam Şebeke Kaybı</div>
+                        <div class="stat-label">Toplam İletim Kaybı</div>
                         <div class="stat-val text-red" id="stat-loss">0.0 MW</div>
                     </div>
                 </div>
                 
-                <div class="stats-grid" style="margin-top: 10px;">
+                <div class="stats-grid" style="margin-top: 8px;">
                     <div class="stat-box" style="grid-column: span 2;">
                         <div class="stat-label">Ortalama Şebeke Verimliliği</div>
-                        <div class="stat-val text-green" id="stat-efficiency" style="color: var(--accent-cyan);">100%</div>
+                        <div class="stat-val" id="stat-efficiency" style="color: var(--accent-blue);">100%</div>
                     </div>
                 </div>
             </div>
 
             <!-- Subscriber Manager -->
-            <div class="card">
-                <div class="card-title">👥 Abone Yönetim Birimi (Hash-Map O(1))</div>
+            <div class="panel">
+                <div class="panel-title">🖥️ Abone Veritabanı Yönetimi [Hash-Map O(1)]</div>
                 
                 <div class="node-list-container" id="node-list">
                     <!-- Dynamic subscriber rows will go here -->
@@ -579,20 +603,20 @@
                         <input type="text" id="new-name" placeholder="Örn: C Konutları">
                     </div>
                     <div class="form-input-group">
-                        <label for="new-icon">İkon / Simge</label>
-                        <select id="new-icon" style="font-size: 1.1rem; padding: 6px 4px;">
+                        <label for="new-icon">Simge</label>
+                        <select id="new-icon" style="font-size: 1rem; padding: 5px 4px;">
                             <option value="🏥">🏥 Hastane</option>
                             <option value="🏠">🏠 Konut / Ev</option>
-                            <option value="🏭">🏭 Sanayi / Fabrika</option>
-                            <option value="🏫">🏫 Okul / Eğitim</option>
+                            <option value="🏭">🏭 Fabrika</option>
+                            <option value="🏫">🏫 Okul</option>
                             <option value="🏢">🏢 İş Merkezi</option>
                             <option value="💻">💻 Teknopark</option>
                             <option value="🚨">🚨 Acil Durum</option>
-                            <option value="⚡">⚡ Enerji Ünitesi</option>
-                            <option value="🚜">🚜 Tarım / Çiftlik</option>
-                            <option value="🏪">🏪 Market / AVM</option>
+                            <option value="⚡">⚡ Enerji</option>
+                            <option value="🚜">🚜 Çiftlik</option>
+                            <option value="🏪">🏪 AVM / Market</option>
                             <option value="🏨">🏨 Otel</option>
-                            <option value="⛲">⛲ Rekreasyon</option>
+                            <option value="⛲">⛲ Park</option>
                         </select>
                     </div>
                     <div class="form-input-group">
@@ -604,14 +628,14 @@
                         </select>
                     </div>
                     <div class="form-input-group">
-                        <label for="new-demand">Talep (MW)</label>
-                        <input type="number" id="new-demand" min="1" max="100" value="20" style="padding: 8px 6px;">
+                        <label for="new-demand">Talep(MW)</label>
+                        <input type="number" id="new-demand" min="1" max="100" value="20" style="padding: 6px 4px;">
                     </div>
                     <div class="form-input-group">
-                        <label for="new-distance">Mesafe (km)</label>
-                        <input type="number" id="new-distance" min="1" max="30" value="5" style="padding: 8px 6px;">
+                        <label for="new-distance">Mesafe(km)</label>
+                        <input type="number" id="new-distance" min="1" max="30" value="5" style="padding: 6px 4px;">
                     </div>
-                    <button class="btn-add" onclick="addNewSubscriber()">Ekle</button>
+                    <button class="btn-add" onclick="addNewSubscriber()">EKLE</button>
                 </div>
             </div>
 
@@ -621,8 +645,8 @@
         <div class="visualization-panel">
             
             <!-- Network Topology Graphic -->
-            <div class="card" style="padding: 1.2rem;">
-                <div class="card-title" style="margin-bottom: 0.8rem; margin-left: 0.6rem;">🌐 Şebeke Topolojisi ve Canlı Güç Akışı</div>
+            <div class="panel" style="padding: 1.2rem;">
+                <div class="panel-title" style="margin-bottom: 0.8rem; margin-left: 0.6rem;">📊 Şebeke Akış Diyagramı (Tek-Hat Şeması)</div>
                 
                 <div class="network-viewport">
                     <svg class="network-svg" id="topology-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
@@ -633,9 +657,9 @@
 
             <!-- Academic Insight -->
             <div class="academic-info">
-                <div class="academic-info-title">🎓 Akademik Optimizasyon Raporu</div>
+                <div class="academic-info-title">📐 Algoritmik Optimizasyon Raporu</div>
                 <div class="academic-info-desc">
-                    Sistem veri tabanına erişmek için <span class="academic-badge">O(1)</span> Hash-Map indekslemesi kullanmaktadır. Dağıtım planlaması yapılırken aboneler öncelik ve mesafe ( Greedy ) kriterlerine göre <span class="academic-badge">O(N log N)</span> maliyetli bir <strong>Heap / Priority Queue</strong> ile sıralanır. Eşit öncelikli gruplarda mesafe bazlı Greedy seçimi yapılması, iletim hatlarındaki güç kayıplarını minimuma indirir.
+                    Sistem veri tabanına arama ve güncelleme erişimi için <span class="academic-badge">O(1)</span> Hash-Map (JS Object) yapısını kullanır. Kaynak dağıtımı yapılmadan önce tüm aboneler öncelik seviyesi ve iletim hattı kayıplarını optimize eden mesafe parametresine göre <span class="academic-badge">O(N log N)</span> Heap Sort (Priority Queue) sıralamasına sokulur. Düşük mesafeli hatlara öncelik verilmesi, toplam hat direncini ve şebeke kaybını minimize eder (Greedy Choice).
                 </div>
             </div>
 
@@ -717,10 +741,12 @@
         let remaining = totalPower;
         let totalSupplied = 0;
         let totalLoss = 0;
+        let hasCutoff = false;
 
         for (let item of pq) {
             if (remaining <= 0) {
                 database[item.name].status = "Enerji Kesildi";
+                hasCutoff = true;
                 continue;
             }
 
@@ -739,12 +765,13 @@
                 const supplied = remaining / (1 + (item.distance * 0.01));
                 const actualLoss = remaining - supplied;
 
-                database[item.name].status = `Kısıtlı Besleniyor (${supplied.toFixed(1)} MW)`;
+                database[item.name].status = `Kısıtlı (${supplied.toFixed(1)} MW)`;
                 database[item.name].supplied = supplied;
                 database[item.name].loss = actualLoss;
                 totalSupplied += supplied;
                 totalLoss += actualLoss;
                 remaining = 0;
+                hasCutoff = true;
             }
         }
 
@@ -755,6 +782,23 @@
         const totalNeededEff = totalSupplied + totalLoss;
         const efficiency = totalNeededEff > 0 ? (totalSupplied / totalNeededEff) * 100 : 100;
         document.getElementById("stat-efficiency").innerText = `${efficiency.toFixed(1)}%`;
+
+        // Update system status header based on grid state
+        const modeBadge = document.getElementById("system-mode-badge");
+        const modeText = document.getElementById("system-mode-text");
+        if (hasCutoff) {
+            modeBadge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+            modeBadge.style.borderColor = "rgba(239, 68, 68, 0.2)";
+            modeBadge.style.color = "var(--accent-red)";
+            modeText.innerText = "YETERSİZ KAYNAK / KRİZ MODU";
+            document.querySelector(".status-dot").style.backgroundColor = "var(--accent-red)";
+        } else {
+            modeBadge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+            modeBadge.style.borderColor = "rgba(16, 185, 129, 0.2)";
+            modeBadge.style.color = "var(--accent-green)";
+            modeText.innerText = "NOMİNAL / STABİL DAĞITIM";
+            document.querySelector(".status-dot").style.backgroundColor = "var(--accent-green)";
+        }
 
         updateSubscriberUI();
         drawTopologyGraph();
@@ -777,15 +821,15 @@
                         <div>
                             <div class="sub-name" style="display: flex; align-items: center; gap: 8px;">
                                 ${name}
-                                <span class="priority-badge badge-${info.priority}">P-${info.priority}</span>
+                                <span class="priority-badge badge-${info.priority}">Öncelik P-${info.priority}</span>
                             </div>
-                            <div class="sub-meta">Talep: ${info.demand} MW | Mesafe: ${info.distance} km</div>
+                            <div class="sub-meta">Talep: ${info.demand} MW | İletim Kaybı: ${info.loss.toFixed(1)} MW (Mesafe: ${info.distance} km)</div>
                         </div>
                     </div>
                     <div class="sub-status-box" style="display: flex; align-items: center; gap: 12px;">
                         <div>
                             <div class="sub-status-text ${statusClass}">${info.status}</div>
-                            <div class="sub-power-supplied">Kayıp: ${info.loss.toFixed(2)} MW</div>
+                            <div class="sub-power-supplied">Aktif Yük: ${info.supplied.toFixed(1)} MW</div>
                         </div>
                         <button class="btn-delete" onclick="deleteSubscriber('${name}')" title="Aboneyi Sil">🗑️</button>
                     </div>
@@ -851,9 +895,12 @@
     function drawTopologyGraph() {
         svgEl.innerHTML = "";
 
-        // Definitions for marker markers
+        // Definitions for CAD blueprint grid and markers
         svgEl.innerHTML += `
             <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.04)" stroke-width="1"/>
+                </pattern>
                 <marker id="arrow-green" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
                 </marker>
@@ -866,10 +913,13 @@
             </defs>
         `;
 
-        // 1. Draw connections
+        // Draw grid blueprint background
+        svgEl.innerHTML += `<rect width="100%" height="100%" class="grid-pattern" />`;
+
+        // 1. Draw transmission lines
         for (let name in database) {
             const node = database[name];
-            let color = "rgba(239, 68, 68, 0.4)";
+            let color = "rgba(239, 68, 68, 0.25)";
             let marker = "url(#arrow-red)";
             let flowClass = "flow-line off";
 
@@ -883,80 +933,68 @@
                 flowClass = "flow-line";
             }
 
-            // Path line
+            // Connection line
             svgEl.innerHTML += `
                 <line x1="${sourceNode.x}" y1="${sourceNode.y}" x2="${node.x}" y2="${node.y}" 
-                      stroke="${color}" stroke-width="2.5" marker-end="${marker}" class="${flowClass}" />
+                      stroke="${color}" stroke-width="2" marker-end="${marker}" class="${flowClass}" />
             `;
             
-            // Distance text along the link
+            // Distance label
             const midX = (sourceNode.x + node.x) / 2;
             const midY = (sourceNode.y + node.y) / 2 - 10;
             svgEl.innerHTML += `
-                <text x="${midX}" y="${midY}" fill="#9fa0b5" font-size="11" font-weight="600" text-anchor="middle">
-                    ${node.distance} km
-                </text>
+                <g>
+                    <rect x="${midX - 22}" y="${midY - 8}" width="44" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                    <text x="${midX}" y="${midY + 2}" fill="#9ca3af" font-size="9" font-weight="700" text-anchor="middle">
+                        ${node.distance} km
+                    </text>
+                </g>
             `;
         }
 
-        // 2. Draw source node (Power plant generator)
+        // 2. Draw Generator Substation (Source node)
         svgEl.innerHTML += `
             <g transform="translate(${sourceNode.x}, ${sourceNode.y})">
-                <circle cx="0" cy="0" r="20" fill="url(#sourceGrad)" filter="url(#glow-c)" />
-                <circle cx="0" cy="0" r="14" fill="#06b6d4" class="pulse-source" />
-                <circle cx="0" cy="0" r="10" fill="#fff" />
-                <text x="0" y="-28" fill="#fff" font-size="12" font-weight="800" text-anchor="middle">⚡ ÜRETİCİ</text>
+                <circle cx="0" cy="0" r="18" fill="#1f2937" stroke="#374151" stroke-width="2" />
+                <circle cx="0" cy="0" r="12" fill="#0284c7" />
+                <text x="0" y="3" fill="#fff" font-size="10" font-weight="800" text-anchor="middle">⚡</text>
+                <text x="0" y="-24" fill="#fff" font-size="10" font-weight="700" text-anchor="middle" letter-spacing="0.5px">JENERATÖR</text>
             </g>
         `;
 
-        // Radial gradient for source node
-        svgEl.innerHTML += `
-            <defs>
-                <radialGradient id="sourceGrad">
-                    <stop offset="0%" stop-color="#22d3ee" />
-                    <stop offset="100%" stop-color="#0891b2" />
-                </radialGradient>
-                <filter id="glow-c" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="8" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-            </defs>
-        `;
-
-        // 3. Draw subscriber nodes
+        // 3. Draw Subscriber nodes
         for (let name in database) {
             const node = database[name];
             let color = "#ef4444";
-            let glow = "var(--glow-red)";
             let icon = node.icon || "🏠";
 
             if (node.status.includes("Besleniyor (%100)")) {
                 color = "#10b981";
-                glow = "var(--glow-green)";
             } else if (node.status.includes("Kısıtlı")) {
                 color = "#f59e0b";
-                glow = "var(--glow-yellow)";
             }
 
             svgEl.innerHTML += `
                 <g transform="translate(${node.x}, ${node.y})">
-                    <circle cx="0" cy="0" r="16" fill="${color}" style="box-shadow: ${glow}" />
-                    <text x="0" y="4" font-size="14" text-anchor="middle">${icon}</text>
+                    <!-- Base circle representing the subscriber node -->
+                    <circle cx="0" cy="0" r="15" fill="#1f2937" stroke="${color}" stroke-width="2.5" />
+                    <text x="0" y="4" font-size="12" text-anchor="middle">${icon}</text>
                     
-                    <!-- Box label for subscriber details -->
-                    <rect x="-70" y="-36" width="140" height="18" rx="4" fill="rgba(0,0,0,0.85)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-                    <text x="0" y="-23" fill="#fff" font-size="9.5" font-weight="600" text-anchor="middle">
-                        ${name.substring(0, 18)}${name.length > 18 ? '...' : ''}
-                    </text>
+                    <!-- Label box -->
+                    <g transform="translate(0, -25)">
+                        <rect x="-65" y="-8" width="130" height="16" rx="4" fill="#111827" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+                        <text x="0" y="3" fill="#f3f4f6" font-size="8.5" font-weight="600" text-anchor="middle">
+                            ${name.substring(0, 18)}${name.length > 18 ? '...' : ''}
+                        </text>
+                    </g>
                     
-                    <!-- Priority marker -->
-                    <circle cx="-14" cy="18" r="6" fill="#1e1b4b" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
-                    <text x="-14" y="21" fill="#a5b4fc" font-size="8" font-weight="bold" text-anchor="middle">P${node.priority}</text>
-
-                    <!-- Demand value indicator -->
-                    <text x="14" y="21" fill="#fff" font-size="8.5" font-weight="bold" text-anchor="middle">
-                        ${node.demand}M
-                    </text>
+                    <!-- Small details below the node (Priority & Demand) -->
+                    <g transform="translate(0, 24)">
+                        <rect x="-32" y="-6" width="64" height="12" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" />
+                        <text x="0" y="3" fill="#9ca3af" font-size="7.5" font-weight="700" text-anchor="middle">
+                            P${node.priority} | ${node.demand} MW
+                        </text>
+                    </g>
                 </g>
             `;
         }
