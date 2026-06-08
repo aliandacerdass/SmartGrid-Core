@@ -56,6 +56,7 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 - **Geliştirme:** Şebekede tek enerji kaynağı yerine birden fazla jeneratör (💨 Rüzgar, ☀️ Güneş, 🔋 Batarya vb.) desteği eklendi.
 - **Algoritmik Geliştirme:** Çok Kaynaklı Dengeleme Algoritması entegre edildi. Her abone en yüksek öncelikten başlayarak kendisine **en yakın (Euclidean distance)** ve boş kapasitesi olan jeneratör(ler)den beslenir.
 - **Geliştirme (UI):** Jeneratörlerin kapasitelerini, X ve Y koordinatlarını anlık değiştirebileceğiniz sürgüler (sliders) eklendi. Jeneratörlerin konumları değiştikçe iletim hatları otomatik olarak hareket eder ve iletim hatlarındaki fiziksel mesafe kayıpları anlık yeniden hesaplanır.
+- **Performans Optimizasyonu & Yeni Özellik:** Jeneratör sürgüleri kaydırılırken listedeki DOM elemanlarının sürekli baştan yaratılmasından ötürü oluşan tıkanma ve kasma (stuttering) sorunu giderildi. Arayüzün yeniden çizilme (rendering) mantığı güncellenerek değer güncellemeleri doğrudan in-place (yerinde) yapıldı ve sürgüler 60 FPS akıcılığa kavuşturuldu. Ayrıca her sürgünün yanına, kullanıcının tıklayıp doğrudan jeneratör değerlerini (Güç, X, Y) elle yazarak değiştirebileceği sayısal girdi kutuları (Numeric Inputs) entegre edildi.
 - **Değişiklik:** `project_memory.md` güncellendi ve yeni aşama tamamlandı olarak işaretlendi.
 
 ### [2026-06-08] - Görselleştirme ve Animasyon Güncellemesi

@@ -278,6 +278,26 @@
             color: var(--text-primary);
         }
 
+        .gen-inline-num-input {
+            width: 45px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1px 4px;
+            color: #fff;
+            font-size: 0.72rem;
+            text-align: right;
+            outline: none;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .gen-inline-num-input::-webkit-outer-spin-button,
+        .gen-inline-num-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         /* Editor Forms */
         .add-node-form {
             display: grid;
@@ -788,64 +808,82 @@
             document.querySelector(".status-dot").style.backgroundColor = "var(--accent-green)";
         }
 
-        updateUIElements();
+        updateLiveTelemetry();
         drawTopologyGraph();
     }
 
-    // Update UI lists
-    function updateUIElements() {
-        // 1. Update Generators List UI
+    // Rebuilds the DOM of Generator List - only called on init, add or delete
+    function renderGeneratorList() {
         generatorList.innerHTML = "";
         for (let name in generators) {
             const gen = generators[name];
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
             const loadFactor = ((gen.capacity - gen.remaining) / gen.capacity) * 100;
             
             generatorList.innerHTML += `
-                <div class="gen-node-row">
+                <div class="gen-node-row" id="gen-row-${safeName}">
                     <div class="gen-info-left">
                         <span class="gen-icon">${gen.icon}</span>
                         <div>
                             <div class="gen-name">${name}</div>
-                            <div class="gen-meta">Kapasite: ${gen.capacity} MW | Kalan: ${gen.remaining.toFixed(1)} MW</div>
-                            <div class="gen-power-usage" style="color: ${loadFactor > 90 ? 'var(--accent-red)' : (loadFactor > 50 ? 'var(--accent-yellow)' : 'var(--accent-green)')}">Yüklenme: ${loadFactor.toFixed(0)}%</div>
+                            <div class="gen-meta" id="gen-meta-${safeName}">Kapasite: ${gen.capacity} MW | Kalan: ${gen.remaining.toFixed(1)} MW</div>
+                            <div class="gen-power-usage" id="gen-usage-${safeName}" style="color: ${loadFactor > 90 ? 'var(--accent-red)' : (loadFactor > 50 ? 'var(--accent-yellow)' : 'var(--accent-green)')}">Yüklenme: ${loadFactor.toFixed(0)}%</div>
                         </div>
                     </div>
                     <div class="gen-list-sliders">
                         <div class="inline-slider-group">
                             <span>Güç:</span>
-                            <input type="range" min="0" max="250" step="5" value="${gen.capacity}" oninput="updateGeneratorPower('${name}', this.value)">
-                            <span class="val">${gen.capacity} MW</span>
+                            <input type="range" min="0" max="250" step="5" value="${gen.capacity}" 
+                                   oninput="handleGenPowerInput('${name}', this.value)" 
+                                   id="slider-power-${safeName}">
+                            <input type="number" min="0" max="1000" value="${gen.capacity}" 
+                                   oninput="handleGenPowerInput('${name}', this.value)" 
+                                   class="gen-inline-num-input" 
+                                   id="num-power-${safeName}">
+                            <span style="font-size: 0.7rem; color: var(--text-secondary);">MW</span>
                         </div>
                         <div class="inline-slider-group">
                             <span>Konum X:</span>
-                            <input type="range" min="50" max="750" value="${gen.x}" oninput="updateGeneratorPos('${name}', 'x', this.value)">
-                            <span class="val">X: ${gen.x}</span>
+                            <input type="range" min="50" max="750" value="${gen.x}" 
+                                   oninput="handleGenPosInput('${name}', 'x', this.value)" 
+                                   id="slider-x-${safeName}">
+                            <input type="number" min="50" max="750" value="${gen.x}" 
+                                   oninput="handleGenPosInput('${name}', 'x', this.value)" 
+                                   class="gen-inline-num-input" 
+                                   id="num-x-${safeName}">
                         </div>
                         <div class="inline-slider-group">
                             <span>Konum Y:</span>
-                            <input type="range" min="50" max="350" value="${gen.y}" oninput="updateGeneratorPos('${name}', 'y', this.value)">
-                            <span class="val">Y: ${gen.y}</span>
+                            <input type="range" min="50" max="350" value="${gen.y}" 
+                                   oninput="handleGenPosInput('${name}', 'y', this.value)" 
+                                   id="slider-y-${safeName}">
+                            <input type="number" min="50" max="350" value="${gen.y}" 
+                                   oninput="handleGenPosInput('${name}', 'y', this.value)" 
+                                   class="gen-inline-num-input" 
+                                   id="num-y-${safeName}">
                         </div>
                     </div>
                     <button class="btn-delete" onclick="deleteGenerator('${name}')" title="Jeneratörü Kaldır" style="margin-left: 10px;">🗑️</button>
                 </div>
             `;
         }
+    }
 
-        // 2. Update Subscribers List UI
+    // Rebuilds the DOM of Subscriber List - only called on init, add or delete
+    function renderSubscriberList() {
         nodeList.innerHTML = "";
         for (let name in database) {
             const info = database[name];
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
             
             let statusClass = "text-red";
             if (info.status.includes("Besleniyor (%100)")) statusClass = "text-green";
             else if (info.status.includes("Kısıtlı")) statusClass = "text-yellow";
 
-            // List supplying generators detail
             let sourcesStr = info.supplied_by.map(s => `${s.genName.substring(0, 10)} (${s.amount.toFixed(0)}MW)`).join(", ") || "Yok";
 
             nodeList.innerHTML += `
-                <div class="sub-node-row">
+                <div class="sub-node-row" id="sub-row-${safeName}">
                     <div class="sub-info-left">
                         <span class="sub-icon">${info.icon || "🏠"}</span>
                         <div>
@@ -853,8 +891,8 @@
                                 ${name}
                                 <span class="priority-badge badge-${info.priority}">Öncelik P-${info.priority}</span>
                             </div>
-                            <div class="sub-meta">Talep: ${info.demand} MW | Kaynaklar: [ ${sourcesStr} ]</div>
-                            <div class="sub-meta" style="color: var(--accent-blue);">Toplam Kayıp: ${info.loss.toFixed(1)} MW</div>
+                            <div class="sub-meta sub-sources-list">Kaynaklar: [ ${sourcesStr} ]</div>
+                            <div class="sub-meta sub-loss-val" style="color: var(--accent-blue);">Toplam Kayıp: ${info.loss.toFixed(1)} MW</div>
                         </div>
                     </div>
                     <div class="sub-status-box" style="display: flex; align-items: center; gap: 12px;">
@@ -869,17 +907,103 @@
         }
     }
 
-    // Inline update handlers
-    function updateGeneratorPower(name, val) {
-        generators[name].capacity = parseFloat(val);
+    // Updates live values and badges without recreating input DOMs
+    function updateLiveTelemetry() {
+        // 1. Update Generators telemetry in-place
+        for (let name in generators) {
+            const gen = generators[name];
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
+            const loadFactor = ((gen.capacity - gen.remaining) / gen.capacity) * 100;
+
+            const metaEl = document.getElementById(`gen-meta-${safeName}`);
+            if (metaEl) {
+                metaEl.innerText = `Kapasite: ${gen.capacity.toFixed(0)} MW | Kalan: ${gen.remaining.toFixed(1)} MW`;
+            }
+
+            const usageEl = document.getElementById(`gen-usage-${safeName}`);
+            if (usageEl) {
+                usageEl.innerText = `Yüklenme: ${loadFactor.toFixed(0)}%`;
+                usageEl.style.color = loadFactor > 90 ? 'var(--accent-red)' : (loadFactor > 50 ? 'var(--accent-yellow)' : 'var(--accent-green)');
+            }
+        }
+
+        // 2. Update Subscribers telemetry in-place
+        for (let name in database) {
+            const info = database[name];
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
+            
+            let statusClass = "text-red";
+            if (info.status.includes("Besleniyor (%100)")) statusClass = "text-green";
+            else if (info.status.includes("Kısıtlı")) statusClass = "text-yellow";
+
+            const row = document.getElementById(`sub-row-${safeName}`);
+            if (row) {
+                const statusTextEl = row.querySelector(".sub-status-text");
+                const powerSuppliedEl = row.querySelector(".sub-power-supplied");
+                const sourcesEl = row.querySelector(".sub-sources-list");
+                const lossEl = row.querySelector(".sub-loss-val");
+
+                if (statusTextEl) {
+                    statusTextEl.className = `sub-status-text ${statusClass}`;
+                    statusTextEl.innerText = info.status;
+                }
+                if (powerSuppliedEl) {
+                    powerSuppliedEl.innerText = `Aktif Yük: ${info.supplied.toFixed(1)} MW`;
+                }
+                if (lossEl) {
+                    lossEl.innerText = `Toplam Kayıp: ${info.loss.toFixed(1)} MW`;
+                }
+                if (sourcesEl) {
+                    let sourcesStr = info.supplied_by.map(s => `${s.genName.substring(0, 10)} (${s.amount.toFixed(0)}MW)`).join(", ") || "Yok";
+                    sourcesEl.innerText = `Kaynaklar: [ ${sourcesStr} ]`;
+                }
+            }
+        }
+    }
+
+    // Handles slide and number changes for generator power
+    function handleGenPowerInput(name, val) {
+        let numericVal = parseFloat(val);
+        if (isNaN(numericVal) || numericVal < 0) {
+            numericVal = 0;
+        }
+
+        generators[name].capacity = numericVal;
+        
+        const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
+        
+        // Sync DOM elements without resetting focus
+        const slider = document.getElementById(`slider-power-${safeName}`);
+        const numInput = document.getElementById(`num-power-${safeName}`);
+        
+        if (slider && slider.value != numericVal) slider.value = numericVal;
+        if (numInput && numInput.value != numericVal) numInput.value = numericVal;
+        
         distributeEnergy();
     }
 
-    function updateGeneratorPos(name, axis, val) {
-        generators[name][axis] = parseInt(val);
+    // Handles slide and number changes for generator X/Y position
+    function handleGenPosInput(name, axis, val) {
+        let numericVal = parseInt(val);
+        if (isNaN(numericVal)) {
+            numericVal = 0;
+        }
+
+        generators[name][axis] = numericVal;
+        
+        const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
+        
+        // Sync DOM elements without resetting focus
+        const slider = document.getElementById(`slider-${axis}-${safeName}`);
+        const numInput = document.getElementById(`num-${axis}-${safeName}`);
+        
+        if (slider && slider.value != numericVal) slider.value = numericVal;
+        if (numInput && numInput.value != numericVal) numInput.value = numericVal;
+        
         distributeEnergy();
     }
 
+    // Delete generator and rebuild list
     function deleteGenerator(name) {
         if (Object.keys(generators).length <= 1) {
             alert("En az bir adet jeneratör şebekede aktif bulunmalıdır!");
@@ -887,11 +1011,12 @@
         }
         if (confirm(`"${name}" jeneratörünü silmek istediğinize emin misiniz?`)) {
             delete generators[name];
+            renderGeneratorList();
             distributeEnergy();
         }
     }
 
-    // Add new generator
+    // Add new generator and rebuild list
     function addNewGenerator() {
         const nameInput = document.getElementById("new-gen-name");
         const iconSelect = document.getElementById("new-gen-icon");
@@ -929,10 +1054,11 @@
         };
 
         nameInput.value = "";
+        renderGeneratorList();
         distributeEnergy();
     }
 
-    // Add new subscriber
+    // Add new subscriber and rebuild list
     function addNewSubscriber() {
         const nameInput = document.getElementById("new-name");
         const iconSelect = document.getElementById("new-icon");
@@ -970,22 +1096,30 @@
         };
 
         nameInput.value = "";
+        renderSubscriberList();
         distributeEnergy();
     }
 
-    // Delete subscriber
+    // Delete subscriber and rebuild list
     function deleteSubscriber(name) {
         if (confirm(`"${name}" abonesini silmek istediğinize emin misiniz?`)) {
             delete database[name];
+            renderSubscriberList();
             distributeEnergy();
         }
     }
 
-    // Quick Scenario set helper
+    // Quick Scenario set helper (syncs Wind gen UI)
     function setScenario(val) {
-        // Adjust main Wind generator capacity as total power representation
         if (generators["Ana Üretici (Rüzgar)"]) {
             generators["Ana Üretici (Rüzgar)"].capacity = val;
+            const safeName = "Ana Üretici (Rüzgar)".replace(/[^a-zA-Z0-9]/g, "_");
+            
+            const slider = document.getElementById(`slider-power-${safeName}`);
+            const numInput = document.getElementById(`num-power-${safeName}`);
+            
+            if (slider) slider.value = val;
+            if (numInput) numInput.value = val;
         }
         distributeEnergy();
     }
@@ -1142,7 +1276,9 @@
         }
     }
 
-    // Run first calculation
+    // Run first rendering & calculation
+    renderGeneratorList();
+    renderSubscriberList();
     distributeEnergy();
 </script>
 
