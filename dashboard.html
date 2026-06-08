@@ -1128,19 +1128,34 @@
     function drawTopologyGraph() {
         svgEl.innerHTML = "";
 
-        // Definitions for CAD grid and markers
+        // Calculate dynamic sizing based on total number of nodes to prevent crowding
+        const numGens = Object.keys(generators).length;
+        const numSubs = Object.keys(database).length;
+        const totalNodes = numGens + numSubs;
+
+        // Base scale factor: larger by default (1.3 for 6 nodes), shrinking as elements are added
+        const scaleFactor = Math.max(0.6, 9.0 / (totalNodes + 1));
+
+        const genRadius = 24 * scaleFactor;
+        const genInnerRadius = 17 * scaleFactor;
+        const genFontSize = 15 * scaleFactor;
+
+        const subRadius = 20 * scaleFactor;
+        const subFontSize = 13.5 * scaleFactor;
+
+        // Definitions for CAD grid and markers (refX=10 puts arrow tip exactly on line end)
         svgEl.innerHTML += `
             <defs>
                 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                     <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.035)" stroke-width="1"/>
                 </pattern>
-                <marker id="arrow-green" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <marker id="arrow-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
                 </marker>
-                <marker id="arrow-yellow" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <marker id="arrow-yellow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
                 </marker>
-                <marker id="arrow-red" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <marker id="arrow-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
                 </marker>
             </defs>
@@ -1166,8 +1181,21 @@
                     }
                 }
                 if (closestGen) {
+                    const dx = sub.x - closestGen.x;
+                    const dy = sub.y - closestGen.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    let x1 = closestGen.x, y1 = closestGen.y, x2 = sub.x, y2 = sub.y;
+                    
+                    if (dist > 0) {
+                        const ux = dx / dist;
+                        const uy = dy / dist;
+                        x1 = closestGen.x + (genRadius * ux);
+                        y1 = closestGen.y + (genRadius * uy);
+                        x2 = sub.x - (subRadius * ux);
+                        y2 = sub.y - (subRadius * uy);
+                    }
                     svgEl.innerHTML += `
-                        <line x1="${closestGen.x}" y1="${closestGen.y}" x2="${sub.x}" y2="${sub.y}" 
+                        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
                               stroke="rgba(239, 68, 68, 0.15)" stroke-dasharray="2, 4" stroke-width="1.5" />
                     `;
                 }
@@ -1187,10 +1215,25 @@
                     marker = "url(#arrow-yellow)";
                 }
 
+                // Math to start and end connection lines exactly at circle borders
+                const dx = sub.x - gen.x;
+                const dy = sub.y - gen.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                let x1 = gen.x, y1 = gen.y, x2 = sub.x, y2 = sub.y;
+                
+                if (dist > 0) {
+                    const ux = dx / dist;
+                    const uy = dy / dist;
+                    x1 = gen.x + (genRadius * ux);
+                    y1 = gen.y + (genRadius * uy);
+                    x2 = sub.x - (subRadius * ux);
+                    y2 = sub.y - (subRadius * uy);
+                }
+
                 // Connection line
                 svgEl.innerHTML += `
-                    <line x1="${gen.x}" y1="${gen.y}" x2="${sub.x}" y2="${sub.y}" 
-                          stroke="${color}" stroke-opacity="0.85" stroke-width="${1.5 + (supply.amount / 15)}" marker-end="${marker}" class="${flowClass}" />
+                    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
+                          stroke="${color}" stroke-opacity="0.85" stroke-width="${(1.5 + (supply.amount / 15)) * scaleFactor}" marker-end="${marker}" class="${flowClass}" />
                 `;
                 
                 // Draw distance label
@@ -1215,12 +1258,12 @@
 
             svgEl.innerHTML += `
                 <g transform="translate(${gen.x}, ${gen.y})">
-                    <circle cx="0" cy="0" r="16" fill="#1f2937" stroke="${gen.color}" stroke-width="2.5" />
-                    <circle cx="0" cy="0" r="12" fill="#0f172a" stroke="${borderCol}" stroke-width="1.5" />
-                    <text x="0" y="3.5" font-size="12" text-anchor="middle">${gen.icon}</text>
+                    <circle cx="0" cy="0" r="${genRadius}" fill="#1f2937" stroke="${gen.color}" stroke-width="2.5" />
+                    <circle cx="0" cy="0" r="${genInnerRadius}" fill="#0f172a" stroke="${borderCol}" stroke-width="1.5" />
+                    <text x="0" y="${4 * scaleFactor}" font-size="${genFontSize}" text-anchor="middle">${gen.icon}</text>
                     
-                    <!-- Generator name label -->
-                    <g transform="translate(0, -23)">
+                    <!-- Generator name label (scales position relative to radius) -->
+                    <g transform="translate(0, ${-genRadius - 7})">
                         <rect x="-60" y="-7" width="120" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.08)" stroke-width="0.75" />
                         <text x="0" y="3" fill="#fff" font-size="8" font-weight="700" text-anchor="middle">
                             ${genName.substring(0, 18)}
@@ -1228,7 +1271,7 @@
                     </g>
 
                     <!-- Generator Telemetry (MW capacity / Remaining) -->
-                    <g transform="translate(0, 23)">
+                    <g transform="translate(0, ${genRadius + 8})">
                         <rect x="-35" y="-6" width="70" height="12" rx="3" fill="#111827" stroke="rgba(255,255,255,0.06)" stroke-width="0.75" />
                         <text x="0" y="3.5" fill="#9ca3af" font-size="8" font-weight="800" text-anchor="middle">
                             ${(gen.capacity - gen.remaining).toFixed(0)} / ${gen.capacity} MW
@@ -1253,11 +1296,11 @@
             svgEl.innerHTML += `
                 <g transform="translate(${node.x}, ${node.y})">
                     <!-- Base circle representing the subscriber node -->
-                    <circle cx="0" cy="0" r="14" fill="#1f2937" stroke="${color}" stroke-width="2" />
-                    <text x="0" y="4.5" font-size="11" text-anchor="middle">${icon}</text>
+                    <circle cx="0" cy="0" r="${subRadius}" fill="#1f2937" stroke="${color}" stroke-width="2" />
+                    <text x="0" y="${4 * scaleFactor}" font-size="${subFontSize}" text-anchor="middle">${icon}</text>
                     
                     <!-- Label box -->
-                    <g transform="translate(0, -23)">
+                    <g transform="translate(0, ${-subRadius - 7})">
                         <rect x="-60" y="-7" width="120" height="14" rx="3" fill="#111827" stroke="rgba(255,255,255,0.1)" stroke-width="0.75" />
                         <text x="0" y="3" fill="#f3f4f6" font-size="8" font-weight="600" text-anchor="middle">
                             ${name.substring(0, 18)}${name.length > 18 ? '...' : ''}
@@ -1265,7 +1308,7 @@
                     </g>
                     
                     <!-- Small details below the node (Priority & Demand) -->
-                    <g transform="translate(0, 22)">
+                    <g transform="translate(0, ${subRadius + 8})">
                         <rect x="-30" y="-5" width="60" height="10" rx="3" fill="#111827" stroke="rgba(255,255,255,0.06)" stroke-width="0.75" />
                         <text x="0" y="3" fill="#9ca3af" font-size="7.5" font-weight="700" text-anchor="middle">
                             P${node.priority} | ${node.demand} MW
