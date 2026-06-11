@@ -1,0 +1,164 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[turkish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+
+\geometry{margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{SmartGrid-Core: Öncelik Tabanlı Çok Kaynaklı Dinamik Enerji Dağıtım Algoritması ve Optimizasyonu Raporu}}
+\author{
+  \textbf{Andaç} (Proje Koordinatörü \& Algoritma Tasarımcısı) \\
+  \textbf{Seda} (Arayüz Geliştirici \& UI/UX Tasarımcısı) \\
+  \textbf{Ayberk} (Frontend Mantığı \& Optimizasyon) \\
+  \textbf{Enes} (CLI Uygulaması \& Teknik Yazar)
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Özet}
+Bu çalışmada, yenilenebilir enerji kaynaklarından (rüzgar, güneş vb.) elde edilen dalgalı enerji üretiminin, şebekedeki farklı öncelik sınıflarına sahip abonelere (hastane, konut, sanayi vb.) en verimli ve en az iletim kaybıyla dağıtılmasını amaçlayan \textbf{SmartGrid-Core} sistemi sunulmaktadır. Proje kapsamında $O(1)$ zaman karmaşıklığına sahip bir veri tabanı katmanı (Hash Map) ve $O(N \log N)$ zaman karmaşıklığına sahip bir kaynak tahsis katmanı (Priority Queue) geliştirilmiştir. Enerji dağıtımında iletim hattı mesafelerine dayalı güç kayıplarını en aza indirmek için Açgözlü Yaklaşım (Greedy Approach) ve Öklid Mesafesi optimizasyonları kullanılmıştır. Sistem, etkileşimli bir CLI simülatörü ve 60 FPS performansla çalışan dinamik bir SCADA Web Dashboard'u ile desteklenmiştir.
+
+\section{Giriş}
+Fosil yakıtların yerini alan yenilenebilir enerji kaynakları (güneş, rüzgar, jeotermal), çevre dostu olmalarına karşın hava koşullarına bağlı olarak dalgalı ve kararsız bir üretim profili sergilerler. Bu dalgalanmalar, elektrik şebekesinde arz-talep dengesizliğine (Grid Unbalance) yol açar. Geleneksel şebekeler bu tür kriz durumlarında tüm hatları kesme (Blackout) veya rastgele kısıtlama yoluna giderken, akıllı şebekeler (Smart Grid) anlık veri analizi ve öncelik sıralaması ile kritik altyapıları koruyarak dağıtımı dinamik olarak dengelemek zorundadır.
+
+Bu projenin temel amacı:
+\begin{itemize}
+    \item Hastane ve acil durum istasyonları gibi kritik kurumların enerjisinin hiçbir koşulda kesilmemesini garanti altına almak,
+    \item Sınırlı kaynak durumlarında normal konutları kısıtlı beslemek, sanayi gibi düşük öncelikli hatları ise kontrollü kesmek,
+    \item Enerjinin iletim hattında taşınırken mesafe ile doğru orantılı olarak maruz kaldığı fiziksel güç kayıplarını (Transmission Loss) minimize etmektir.
+\end{itemize}
+
+\section{Sistem Mimarisi ve Veri Yapıları}
+Sistemin yüksek performansla çalışması ve gerçek zamanlı güncellemeleri donma yaşamadan yapabilmesi için doğru veri yapılarının seçilmesi kritik bir öneme sahiptir.
+
+\subsection{Veri Tabanı Katmanı: Hash Map [$O(1)$]}
+Abonelerin telemetri verilerinin (güç talepleri, öncelikleri, aktif beslenme durumları, X/Y koordinatları) saklanmasında Hash Map veri yapısı (Python sözlük yapısı `dict` ve JavaScript Nesneleri) tercih edilmiştir. 
+\begin{itemize}
+    \item \textbf{Neden Tercih Edildi?} Bir şehir şebekesinde binlerce abone bulunabilir. Arayüzden bir abonenin talebi güncellendiğinde veya yeni bir abone eklendiğinde, veritabanında arama yapmak için tüm listeyi baştan sona dönmek ($O(N)$ doğrusal arama) sistemi tıkayacaktır. Hash Map sayesinde aboneye ismi üzerinden doğrudan erişim sağlanır.
+    \item \textbf{Performans Analizi:} Ekleme, silme ve güncelleme maliyetleri ortalama durumda $\mathbf{O(1)}$ zaman karmaşıklığına sahiptir.
+\end{itemize}
+
+\subsection{Dağıtım Katmanı: Öncelik Kuyruğu (Priority Queue) [$O(N \log N)$]}
+Enerji dağıtım algoritması çalıştırılmadan önce tüm abonelerin önceliklerine ve konumlarına göre sıralanması gerekmektedir. Bu amaçla \textbf{Min-Heap} tabanlı bir Öncelik Kuyruğu (Python'da `heapq`) kullanılmıştır.
+\begin{itemize}
+    \item \textbf{Sıralama Kriterleri:} Kuyrukta elemanlar bir demet (tuple) olarak sıralanır:
+    \begin{equation}
+        \text{Anahtar} = (\text{Öncelik Seviyesi}, \text{İletim Mesafesi}, \text{Abone Adı})
+    \end{equation}
+    \item \textbf{Birincil Sıralama:} Öncelik Seviyesi (1: Kritik, 2: Normal, 3: Düşük). Min-Heap küçük değerli sayılara öncelik verdiğinden dolayı 1 numaralı öncelik ilk olarak pop edilir.
+    \item \textbf{İkincil Sıralama (Açgözlü Seçim):} Aynı önceliğe sahip aboneler arasında en kısa mesafede (Shortest Distance) olan aboneye öncelik verilir. Bu sayede iletim kaybı en düşük olan hatlar öncelikli beslenir.
+    \item \textbf{Neden Tercih Edildi?} Ham bir diziyi (Array) her adımda yeniden sıralamak $O(N^2)$ veya $O(N \log N)$ maliyet üretirken, Heap yapısı ağaç tabanlı olduğu için eleman ekleme ve en öncelikliyi çekme işlemlerini $\mathbf{O(\log N)}$ sürede tamamlar. Toplam $N$ abone için kuyruk oluşturup boşaltma maliyeti $\mathbf{O(N \log N)}$'dir.
+\end{itemize}
+
+\section{Algoritmik Modeller ve Optimizasyon}
+Projede uygulanan matematiksel modeller ve algoritmaların detayları aşağıda açıklanmıştır.
+
+\subsection{Açgözlü Dağıtım Algoritması (Greedy Allocation)}
+Algoritma, Öncelik Kuyruğu'ndan pop edilen her bir abone için açgözlü (greedy) bir yaklaşımla enerji tahsisi yapar. Her abone sırası geldiğinde talebini tam olarak karşılamaya çalışır. Kaynak tükendiği anda kuyruktaki diğer abonelerin durumu otomatik olarak kısıtlı veya kesik moduna geçer.
+
+\subsection{Fiziksel İletim Kaybı Modellemesi}
+Elektrik akımı iletken hatlardan geçerken direnç nedeniyle ısıya dönüşür ve güç kaybı yaşanır. Projede bu durum şu formülle modellenmiştir:
+\begin{equation}
+    P_{\text{kayip}} = P_{\text{talep}} \times (d \times \alpha)
+\end{equation}
+Burada $d$ km cinsinden fiziksel mesafeyi, $\alpha$ ise hat kayıp katsayısını temsil eder (simülasyonda \%1/km, yani 0.01 olarak alınmıştır).
+
+\subsubsection{Kısmi Besleme (Partial Supply) Matematiği}
+Eğer bir abonenin talebini ve iletim kaybını karşılayacak kadar yeterli kaynak kalmamışsa, elimizdeki kalan güç ($P_{\text{kalan}}$) ile aboneye ulaştırılabilecek net güç ($P_{\text{ulasan}}$) şu şekilde türetilir:
+\begin{align}
+    P_{\text{ulasan}} + P_{\text{kayip}} &= P_{\text{kalan}} \\
+    P_{\text{ulasan}} + P_{\text{ulasan}} \times (d \times \alpha) &= P_{\text{kalan}} \\
+    P_{\text{ulasan}} \times (1 + d \times \alpha) &= P_{\text{kalan}} \\
+    P_{\text{ulasan}} &= \frac{P_{\text{kalan}}}{1 + d \times \alpha}
+\end{align}
+Bu matematiksel türetim, şebekenin elindeki enerjiyi son damlasına kadar kayıp oranını hesaba katarak doğru şekilde dağıtmasını sağlar.
+
+\subsection{Çok Kaynaklı Dengeleme (Multi-Source Greedy)}
+Web arayüzünde şebekeye birden fazla jeneratör eklenebilmektedir. Bu durumda algoritmaya şu adımlar eklenmiştir:
+\begin{enumerate}
+    \item Her abone için tüm aktif jeneratörler arasındaki Öklid Mesafesi hesaplanır:
+    \begin{equation}
+        d = \frac{\sqrt{(x_{\text{abone}} - x_{\text{jen}})^2 + (y_{\text{abone}} - y_{\text{jen}})^2}}{40}
+    \end{equation}
+    (Burada 40 piksel = 1 km ölçeği kullanılmıştır).
+    \item Jeneratörler aboneye en yakından en uzağa doğru sıralanır.
+    \item Abone, öncelikle \textbf{en yakınındaki} jeneratörün kapasitesini tüketir. Eğer yetmezse, iletim kaybı katlanarak bir sonraki en yakın jeneratörden destek alır.
+\end{enumerate}
+
+\section{Yazılım Entegrasyonu ve Performans Optimizasyonları}
+Geliştirme sürecinde görsel arayüzün akıcılığını ve doğruluğunu sağlamak amacıyla önemli yazılım mühendisliği optimizasyonları yapılmıştır.
+
+\subsection{60 FPS Slider Performansı (In-place DOM Updates)}
+\textbf{Problem:} İlk prototipte, jeneratör koordinat sürgüsü (slider) kaydırıldığında tüm jeneratör listesi HTML DOM yapısı `innerHTML` ile sıfırdan oluşturuluyordu. Bu durum tarayıcının sürekli olarak yeniden sayfa çizimi (Reflow/Repaint) yapmasına sebep oluyor, slider sürüklenirken takılmalara (stuttering) ve girdi alanlarının odağını (focus) kaybetmesine yol açıyordu.
+
+\textbf{Çözüm:} Arayüzün çizim mimarisi ikiye ayrılmıştır:
+\begin{itemize}
+    \item `renderGeneratorList()`: Sadece sayfa ilk yüklendiğinde, yeni eleman eklendiğinde veya silindiğinde DOM ağacını inşa eder.
+    \item `updateLiveTelemetry()`: Sürgüler hareket ettirildiğinde, sadece değişen değerleri (Kapasite, Kalan Güç, Yüklenme Oranı) hedef ID'ler üzerinden doğrudan günceller (`document.getElementById().innerText = ...`). DOM ağacı yeniden oluşturulmadığı için tarayıcı yükü azalmış ve slider hareketi 60 FPS akıcılığa ulaştırılmıştır.
+\end{itemize}
+
+\subsection{SVG Düğüm Sınırı Vektörel Hizalaması}
+\textbf{Problem:} SVG üzerindeki iletim çizgileri düğümlerin merkez noktalarına ($x, y$) çizildiğinde, ok uçları (markers) ve hat çizgileri düğüm çemberlerinin arkasında kalıyor veya üst üste biniyordu.
+
+\textbf{Çözüm:} Çizginin başlangıç ve bitiş koordinatları düğüm çemberlerinin yarıçapları oranında ötelenmiştir. İki düğüm arasındaki fark vektörü $\mathbf{v} = (dx, dy)$ ve uzunluğu $L = \sqrt{dx^2 + dy^2}$ olmak üzere, birim yön vektörü:
+\begin{equation}
+    u_x = \frac{dx}{L}, \quad u_y = \frac{dy}{L}
+\end{equation}
+Yeni çizgi başlangıç ($x_1', y_1'$) ve bitiş ($x_2', y_2'$) koordinatları jeneratör yarıçapı ($R_g$) ve abone yarıçapı ($R_s$) kullanılarak şöyle hesaplanır:
+\begin{align}
+    x_1' &= x_{\text{jen}} + R_g \times u_x, \quad y_1' = y_{\text{jen}} + R_g \times u_y \\
+    x_2' &= x_{\text{abone}} - R_s \times u_x, \quad y_2' = y_{\text{abone}} - R_s \times u_y
+\end{align}
+Bu sayede iletim hatları çember sınırlarında kusursuz bir şekilde sonlanmaktadır.
+
+\section{Sonuç ve Gelecek Çalışmalar}
+Geliştirilen \textbf{SmartGrid-Core} sistemi, öncelik tabanlı kaynak dağıtım problemini Hash Map ve Heap gibi optimize edilmiş veri yapıları ile çözmüştür. Greedy yaklaşımı sayesinde iletim hattı kayıpları minimize edilmiş ve SCADA paneli üzerinden canlı simülasyon başarılmıştır.
+
+Gelecekteki çalışmalarda sisteme:
+\begin{itemize}
+    \item Düğümler arası en kısa yolu bulmak için Dijkstra veya A* arama algoritmalarının entegre edilmesi,
+    \item Çoklu jeneratör dağıtımında maksimum akış (Maximum Flow - Ford-Fulkerson) algoritmalarının test edilmesi planlanmaktadır.
+\end{itemize}
+
+\end{document}

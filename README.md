@@ -35,6 +35,7 @@ Bu proje, bilgisayar bilimlerindeki en temel kaynak tahsisi (Resource Allocation
 * **[presentation_guide.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/presentation_guide.md)**: Slayt şablonları ve hocadan gelebilecek jüri sorularının cevaplarını içeren sunum rehberi.
 * **[project_memory.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/project_memory.md)**: Proje geliştirme aşamalarını ve Change Log geçmişini tutan hafıza dosyası.
 * **[gorev_dagilimi.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/gorev_dagilimi.md)**: Proje ekibinin görev dağılımını ve iş paketleri sorumluluklarını belgeleyen dosya.
+* **[proje_raporu.tex](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/proje_raporu.tex)**: Projenin algoritmik analizlerini, optimizasyonlarını ve kod mimarisini detaylandıran akademik LaTeX proje raporu.
 
 ---
 
