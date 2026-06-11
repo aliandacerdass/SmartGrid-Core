@@ -97,6 +97,44 @@ Projede uygulanan matematiksel modeller ve algoritmaların detayları aşağıda
 \subsection{Açgözlü Dağıtım Algoritması (Greedy Allocation)}
 Algoritma, Öncelik Kuyruğu'ndan pop edilen her bir abone için açgözlü (greedy) bir yaklaşımla enerji tahsisi yapar. Her abone sırası geldiğinde talebini tam olarak karşılamaya çalışır. Kaynak tükendiği anda kuyruktaki diğer abonelerin durumu otomatik olarak kısıtlı veya kesik moduna geçer.
 
+Açgözlü dağıtım algoritmasının Python çekirdek kütüphanesindeki (`smart_grid.py`) kod implementasyonu şu şekildedir:
+
+\begin{lstlisting}[language=Python, caption={smart\_grid.py - Çekirdek Enerji Dağıtım Algoritması}]
+# 1. Öncelik Kuyruğu (Min-Heap) oluşturma
+pq = []
+for name, info in self.database.items():
+    # Elemanlar: (Öncelik, Mesafe, İsim) şeklinde heap yapısına eklenir
+    heapq.heappush(pq, (info["priority"], info["distance"], name))
+
+remaining_power = total_power
+# 2. Açgözlü Kaynak Dağıtımı
+while pq and remaining_power > 0:
+    priority, distance, name = heapq.heappop(pq)
+    info = self.database[name]
+    demand = info["demand"]
+    
+    # Mesafe bazlı kayıp hesaplama
+    loss = self.calculate_transmission_loss(demand, distance)
+    total_needed = demand + loss
+
+    if remaining_power >= total_needed:
+        # Abonenin talebini tam karşıla
+        remaining_power -= total_needed
+        self.database[name]["status"] = "Besleniyor (%100)"
+        self.database[name]["supplied_energy"] = demand
+        self.database[name]["loss"] = loss
+    elif remaining_power > 0:
+        # Kısmi besleme yap (Kalan gücü kayıp oranına göre böl)
+        supplied = remaining_power / (1 + (distance * 0.01))
+        loss = remaining_power - supplied
+        self.database[name]["status"] = f"Kısıtlı Besleniyor"
+        self.database[name]["supplied_energy"] = supplied
+        self.database[name]["loss"] = loss
+        remaining_power = 0.0
+\end{lstlisting}
+
+Bu kod bloğunda, her abonenin öncelik kuyruğundan çekilerek ($O(\log N)$) kalan güç havuzundan ($remaining\_power$) beslendiği ve iletim hattı kayıplarının anlık olarak düşüldüğü görülmektedir.
+
 \subsection{Fiziksel İletim Kaybı Modellemesi}
 Elektrik akımı iletken hatlardan geçerken direnç nedeniyle ısıya dönüşür ve güç kaybı yaşanır. Projede bu durum şu formülle modellenmiştir:
 \begin{equation}
@@ -138,6 +176,32 @@ Geliştirme sürecinde görsel arayüzün akıcılığını ve doğruluğunu sa�
     \item `updateLiveTelemetry()`: Sürgüler hareket ettirildiğinde, sadece değişen değerleri (Kapasite, Kalan Güç, Yüklenme Oranı) hedef ID'ler üzerinden doğrudan günceller (`document.getElementById().innerText = ...`). DOM ağacı yeniden oluşturulmadığı için tarayıcı yükü azalmış ve slider hareketi 60 FPS akıcılığa ulaştırılmıştır.
 \end{itemize}
 
+Bu optimizasyonun JavaScript (`dashboard.html`) tarafındaki uygulanışı şu şekildedir:
+
+\begin{lstlisting}[language=HTML, caption={dashboard.html - Canlı Telemetri Güncellemesi (In-place DOM Updates)}]
+function updateLiveTelemetry() {
+    // 1. Jenerator degerlerini DOM agacini yikmadan dogrudan guncelle
+    for (let name in generators) {
+        const gen = generators[name];
+        const safeName = name.replace(/[^a-zA-Z0-9]/g, "_");
+        const loadFactor = ((gen.capacity - gen.remaining) / gen.capacity) * 100;
+
+        const metaEl = document.getElementById(`gen-meta-${safeName}`);
+        if (metaEl) {
+            metaEl.innerText = `Kapasite: ${gen.capacity.toFixed(0)} MW | Kalan: ${gen.remaining.toFixed(1)} MW`;
+        }
+
+        const usageEl = document.getElementById(`gen-usage-${safeName}`);
+        if (usageEl) {
+            usageEl.innerText = `Yuklenme: ${loadFactor.toFixed(0)}%`;
+            usageEl.style.color = loadFactor > 90 ? 'var(--accent-red)' : 'var(--accent-green)';
+        }
+    }
+}
+\end{lstlisting}
+
+Söz konusu kod sayesinde sürgüler hareket ederken tüm listeyi barındıran `div` elemanları silinip baştan yaratılmaz, yalnızca `innerText` ve `style` özellikleri nokta atışı değiştirilir. Bu da tarayıcının yeniden biçimlendirme (reflow) maliyetini sıfıra indirir.
+
 \subsection{SVG Düğüm Sınırı Vektörel Hizalaması}
 \textbf{Problem:} SVG üzerindeki iletim çizgileri düğümlerin merkez noktalarına ($x, y$) çizildiğinde, ok uçları (markers) ve hat çizgileri düğüm çemberlerinin arkasında kalıyor veya üst üste biniyordu.
 
@@ -150,7 +214,31 @@ Yeni çizgi başlangıç ($x_1', y_1'$) ve bitiş ($x_2', y_2'$) koordinatları 
     x_1' &= x_{\text{jen}} + R_g \times u_x, \quad y_1' = y_{\text{jen}} + R_g \times u_y \\
     x_2' &= x_{\text{abone}} - R_s \times u_x, \quad y_2' = y_{\text{abone}} - R_s \times u_y
 \end{align}
-Bu sayede iletim hatları çember sınırlarında kusursuz bir şekilde sonlanmaktadır.
+
+İletim çizgilerinin ve ok uçlarının (markers) düğüm sınırlarında düzgün konumlanması için yazılan JavaScript vektör matematiği şu şekildedir:
+
+\begin{lstlisting}[language=HTML, caption={dashboard.html - Vektorel Sinir Oteleme Matematigi}]
+// Iki dugum arasindaki fark vektorunun ve mesafesinin hesabi
+const dx = sub.x - gen.x;
+const dy = sub.y - gen.y;
+const dist = Math.sqrt(dx * dx + dy * dy);
+let x1 = gen.x, y1 = gen.y, x2 = sub.x, y2 = sub.y;
+
+if (dist > 0) {
+    const ux = dx / dist; // Birim X vektoru
+    const uy = dy / dist; // Birim Y vektoru
+    
+    // Cizgi baslangicini jenerator yaricapi kadar ileri al
+    x1 = gen.x + (genRadius * ux);
+    y1 = gen.y + (genRadius * uy);
+    
+    // Cizgi bitisini abone yaricapi kadar geri cek
+    x2 = sub.x - (subRadius * ux);
+    y2 = sub.y - (subRadius * uy);
+}
+\end{lstlisting}
+
+Bu vektörel öteleme işlemi uygulanmadığı takdirde, SVG üzerindeki ok simgeleri düğüm merkezlerinin altında görünmez kalacak veya çemberlerin içine girerek çirkin bir görüntü oluşturacaktı. Birim vektör çarpanları ($u_x, u_y$) sayesinde çizgiler daima çember teğetinde sonlanır.
 
 \section{Sonuç ve Gelecek Çalışmalar}
 Geliştirilen \textbf{SmartGrid-Core} sistemi, öncelik tabanlı kaynak dağıtım problemini Hash Map ve Heap gibi optimize edilmiş veri yapıları ile çözmüştür. Greedy yaklaşımı sayesinde iletim hattı kayıpları minimize edilmiş ve SCADA paneli üzerinden canlı simülasyon başarılmıştır.
