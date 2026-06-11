@@ -34,6 +34,7 @@ Bu proje, bilgisayar bilimlerindeki en temel kaynak tahsisi (Resource Allocation
 * **[test_smart_grid.py](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/test_smart_grid.py)**: Algoritmanın ve Hash Map işlemlerinin doğruluğunu test eden unittest modülü.
 * **[presentation_guide.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/presentation_guide.md)**: Slayt şablonları ve hocadan gelebilecek jüri sorularının cevaplarını içeren sunum rehberi.
 * **[project_memory.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/project_memory.md)**: Proje geliştirme aşamalarını ve Change Log geçmişini tutan hafıza dosyası.
+* **[gorev_dagilimi.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/gorev_dagilimi.md)**: Proje ekibinin görev dağılımını ve iş paketleri sorumluluklarını belgeleyen dosya.
 
 ---
 
@@ -69,6 +70,21 @@ python3 -m unittest test_smart_grid.py
 
 ---
 
+---
+
+## 👥 Ekip Üyeleri (Team Members)
+
+Bu proje, aşağıdaki ekip üyeleri tarafından ortaklaşa geliştirilmiştir:
+1. **Andaç** (Proje Koordinatörü & Algoritma Tasarımcısı)
+2. **Seda** (Arayüz Geliştirici & UI/UX Tasarımcısı)
+3. **Ayberk** (Frontend Mantığı & Optimizasyon)
+4. **Enes** (CLI Uygulaması & Teknik Yazar)
+
+Detaylı iş paketleri, modül bazlı kod sorumlulukları ve iş zaman çizelgesi şeması için **[gorev_dagilimi.md](file:///Users/aliandacerdass/GitHubRepos/SmartGrid-Core/gorev_dagilimi.md)** belgesini inceleyebilirsiniz.
+
+---
+
 ## 📝 Lisans
 
 Bu proje akademik kullanım ve eğitim amaçlı MIT Lisansı ile korunmaktadır.
+

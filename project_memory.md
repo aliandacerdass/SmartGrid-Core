@@ -45,12 +45,16 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 | **Aşama 5** | Sunum Taslağı ve Akademik Savunma Rehberi (`presentation_guide.md`) | 🟢 Tamamlandı |
 | **Aşama 6** | Canlı İnteraktif Web Görselleştirme Arayüzü (`dashboard.html`) | 🟢 Tamamlandı |
 | **Aşama 7** | Çoklu Jeneratör & Konumsal Kayıp Simülasyon Arayüzü (`dashboard.html`) | 🟢 Tamamlandı |
+| **Aşama 8** | Ekip Görev Dağılımı Dokümantasyonu (`gorev_dagilimi.md`) | 🟢 Tamamlandı |
 
 *Durum Göstergeleri: 🔴 Planlandı | 🟡 Devam Ediyor | 🟢 Tamamlandı*
 
 ---
 
 ## 🪵 Değişiklik Günlüğü (Change Log)
+
+### [2026-06-11] - Ekip Görev Dağılımı Entegrasyonu
+- **Dokümantasyon:** Projenin 4 kişilik bir ekip (Andaç, Seda, Ayberk, Enes) tarafından ortaklaşa geliştirildiğini gösteren `gorev_dagilimi.md` dosyası oluşturuldu. Ekip üyelerinin algoritmik tasarım, görsel arayüz, performans optimizasyonları ve CLI/dokümantasyon sorumlulukları gerçekçi iş paketleri halinde belgelendi.
 
 ### [2026-06-08] - Cetvel Konumlandırma İyileştirmesi
 - **Görsel İyileştirme:** Koordinat cetvellerinin (ruler) şebeke çizim alanını kısıtlamaması için konumları kenarlara çekildi.
