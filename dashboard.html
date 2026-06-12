@@ -863,7 +863,7 @@
                                    id="num-y-${safeName}">
                         </div>
                     </div>
-                    <button class="btn-delete" onclick="deleteGenerator('${name}')" title="Jeneratörü Kaldır" style="margin-left: 10px;">🗑️</button>
+                    <button class="btn-delete" data-name="${name.replace(/"/g, '&quot;')}" onclick="deleteGenerator(this.dataset.name)" title="Jeneratörü Kaldır" style="margin-left: 10px;">🗑️</button>
                 </div>
             `;
         }
@@ -900,7 +900,7 @@
                             <div class="sub-status-text ${statusClass}">${info.status}</div>
                             <div class="sub-power-supplied">Aktif Yük: ${info.supplied.toFixed(1)} MW</div>
                         </div>
-                        <button class="btn-delete" onclick="deleteSubscriber('${name}')" title="Aboneyi Sil">🗑️</button>
+                        <button class="btn-delete" data-name="${name.replace(/"/g, '&quot;')}" onclick="deleteSubscriber(this.dataset.name)" title="Aboneyi Sil">🗑️</button>
                     </div>
                 </div>
             `;

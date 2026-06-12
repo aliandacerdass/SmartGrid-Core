@@ -54,6 +54,9 @@ Bu dosya, **SmartGrid-Core: Öncelik Tabanlı Dinamik Enerji Dağıtım Algoritm
 
 ## 🪵 Değişiklik Günlüğü (Change Log)
 
+### [2026-06-12] - Dashboard Silme Butonu Hata Düzeltimi
+- **Hata Giderimi:** Dashboard üzerindeki jeneratör ve abone silme (🗑️) butonlarının, Türkçe karakterler veya tırnak işaretleri içeren düğüm isimlerinde JavaScript tırnak eşleşme hatasından (`SyntaxError`) dolayı çalışmaması sorunu giderildi. Inline string interpolation yerine HTML5 `data-name` özniteliği ve `dataset` mimarisi kullanılarak silme fonksiyonu tamamen güvenli hale getirildi.
+
 ### [2026-06-11] - LaTeX Raporu ve Ekip Görev Dağılımı Entegrasyonu
 - **Akademik Rapor:** Projenin tüm matematiksel modellerini, algoritma seçim analizlerini ($O(1)$ Hash Map, $O(N \log N)$ Öncelik Kuyruğu, Greedy Dağıtım, Kısmi Enerji Besleme Türetimi, Vektörel SVG Çizim matematiği ve DOM performans optimizasyonları) detaylıca ele alan LaTeX formatında `proje_raporu.tex` dosyası oluşturuldu.
 - **Dokümantasyon:** Projenin 4 kişilik bir ekip (Andaç, Seda, Ayberk, Enes) tarafından ortaklaşa geliştirildiğini gösteren `gorev_dagilimi.md` dosyası oluşturuldu. Ekip üyelerinin algoritmik tasarım, görsel arayüz, performans optimizasyonları ve CLI/dokümantasyon sorumlulukları gerçekçi iş paketleri halinde belgelendi.
